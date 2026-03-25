@@ -1,0 +1,22 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top header-navbar shadow-sm">
+  <div class="container-fluid px-4">
+    <button pButton class="p-button-text d-lg-none" type="button" aria-label="Ouvrir le menu" title="Ouvrir le menu">
+      <i class="pi pi-bars fs-4"></i>
+    </button>
+    <div class="navbar-content w-full flex align-items-center justify-content-between ms-auto">
+      <div class="navbar-title opacity-0 lg:opacity-100 font-bold text-900 ml-4">Tableau de Bord</div>
+      <div class="dropdown">
+        <button pButton class="p-button-text dropdown-toggle d-flex align-items-center rounded-pill px-3 py-2 border shadow-none bg-white hover:bg-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <div class="avatar-circle bg-primary-subtle text-primary rounded-circle me-2 flex align-items-center justify-content-center font-bold" style="width: 32px; height: 32px;">A</div>
+          <span class="font-medium text-700">Admin</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 border-round-xl mt-2 py-2">
+          <li><a class="dropdown-item py-2 px-3 flex align-items-center gap-2" routerLink="/admin/profile"><i class="pi pi-user text-600"></i> <span>Profile</span></a></li>
+          <li><a class="dropdown-item py-2 px-3 flex align-items-center gap-2" routerLink="/admin/settings"><i class="pi pi-cog text-600"></i> <span>Settings</span></a></li>
+          <li><hr class="dropdown-divider opacity-10"></li>
+          <li><a class="dropdown-item py-2 px-3 flex align-items-center gap-2 text-danger" href="#"><i class="pi pi-sign-out"></i> <span>Logout</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>

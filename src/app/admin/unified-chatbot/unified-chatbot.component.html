@@ -1,0 +1,85 @@
+<div class="container-fluid py-4 unified-chat">
+  <div class="header-card">
+    <div class="header-main">
+      <div>
+        <h4 class="mb-1">Assistant Unifie Admin</h4>
+        <p class="mb-0 text-muted">Garanties, Produits et Packs dans la meme interface.</p>
+      </div>
+      <button pButton class="p-button-outlined p-button-primary p-button-sm" (click)="showSelector = !showSelector">Choisir un assistant</button>
+    </div>
+
+    <div class="selector-grid" *ngIf="showSelector">
+      <button
+        pButton
+        *ngFor="let type of chatState.availableChatbots"
+        class="selector-item"
+        [style.border-color]="getInfo(type).color"
+        (click)="startNewSession(type)"
+      >
+        <span class="selector-icon" [style.background]="getInfo(type).color">{{ getInfo(type).icon }}</span>
+        <span class="selector-name">{{ getInfo(type).name }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="session-list mb-3" *ngIf="chatState.sessions.length > 0">
+    <button
+      pButton
+      *ngFor="let session of chatState.sessions"
+      class="session-chip"
+      [class.active]="activeSession?.id === session.id"
+      (click)="activateSession(session.id)"
+    >
+      {{ getInfo(session.chatbotType).name }} ({{ session.progress }}%)
+      <span class="delete-chip" (click)="deleteSession(session.id, $event)">x</span>
+    </button>
+  </div>
+
+  <div class="chat-panel" *ngIf="activeSession as session; else emptyState">
+    <div class="chat-toolbar">
+      <span class="status-pill" [class.complete]="session.isComplete">
+        {{ session.isComplete ? 'Termine' : 'En cours' }}
+      </span>
+      <span class="field-label" *ngIf="currentFieldLabel">Champ: {{ currentFieldLabel }}</span>
+      <button pButton class="p-button-sm p-button-outlined p-button-secondary" (click)="resetActiveSession()">Reset</button>
+    </div>
+    <div class="progress mb-2" *ngIf="!session.isComplete">
+      <div class="progress-bar" [style.width.%]="session.progress"></div>
+    </div>
+    <div class="chat-messages" #messagesContainer>
+      <div *ngFor="let message of session.messages" class="message-row" [class.user]="isUserMessage(message)">
+        <div class="message-bubble" [innerHTML]="formatMessage(message.content)"></div>
+      </div>
+      <div class="typing" *ngIf="isTyping">Assistant en train d ecrire...</div>
+    </div>
+    <div class="examples" *ngIf="hasExamples() && !session.isLoading">
+      <button *ngFor="let ex of currentExamples" pButton class="p-button-sm p-button-outlined p-button-primary me-2 mb-2" (click)="useExample(ex)">
+        {{ ex }}
+      </button>
+    </div>
+    <div class="alert alert-danger py-2 px-3 mb-2" *ngIf="chatState.globalError">
+      {{ chatState.globalError }}
+      <button pButton class="p-button-sm p-button-link float-end p-0" (click)="clearGlobalError()">fermer</button>
+    </div>
+    <div class="input-row" *ngIf="!session.isComplete">
+      <textarea pInputTextarea
+        class="form-control"
+        rows="2"
+        [value]="userInput"
+        (input)="userInput = $any($event.target).value"
+        (keypress)="onKeyPress($event)"
+        [disabled]="session.isLoading"
+        placeholder="Ecrire votre message..."
+      ></textarea>
+      <button pButton class="p-button-primary" (click)="sendMessage()" [disabled]="!userInput.trim() || session.isLoading">
+        Envoyer
+      </button>
+    </div>
+  </div>
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <p class="mb-2">Aucune session active.</p>
+      <button pButton class="p-button-primary p-button-sm" (click)="showSelector = true">Demarrer</button>
+    </div>
+  </ng-template>
+</div>

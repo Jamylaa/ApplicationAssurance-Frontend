@@ -1,0 +1,58 @@
+<div class="container-fluid py-4">
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-3">Chargement...</p>
+  </div>
+  <div *ngIf="!isLoading && error" class="alert alert-danger">
+    {{ error }}
+  </div>
+  <div *ngIf="!isLoading && pack" class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="row mb-4 align-items-center">
+        <div class="col">
+          <h2 class="h3 mb-0 fw-bold">{{ pack.nomPack }}</h2>
+          <p class="text-muted small mb-0">{{ pack.description }}</p>
+        </div>
+      </div>
+      <app-breadcrumb [items]="[{ label: 'Packs', link: '/admin/packs' }, { label: 'Details' }]"></app-breadcrumb>
+      <dl class="row mb-0">
+        <dt class="col-sm-3">ID Pack</dt>
+        <dd class="col-sm-9">{{ pack.idPack || '-' }}</dd>
+
+        <dt class="col-sm-3">Nom</dt>
+        <dd class="col-sm-9">{{ pack.nomPack }}</dd>
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">{{ pack.description || '-' }}</dd>
+        <dt class="col-sm-3">Prix mensuel</dt>
+        <dd class="col-sm-9">{{ pack.prixMensuel | number:'1.2-2' }} DT</dd>
+        <dt class="col-sm-3">Duree min</dt>
+        <dd class="col-sm-9">{{ pack.dureeMinContrat }} mois</dd>
+        <dt class="col-sm-3">Duree max</dt>
+        <dd class="col-sm-9">{{ pack.dureeMaxContrat }} mois</dd>
+        <dt class="col-sm-3">Couverture</dt>
+        <dd class="col-sm-9">
+          <span class="badge bg-secondary">{{ pack.niveauCouverture | uppercase }}</span>
+        </dd>
+        <dt class="col-sm-3">Produits (noms)</dt>
+        <dd class="col-sm-9">{{ getProduitNames(pack.produitsIds || []) }}</dd>
+
+        <dt class="col-sm-3">IDs Produits</dt>
+        <dd class="col-sm-9">{{ pack.produitsIds.length ? pack.produitsIds.join(', ') : 'Aucun' }}</dd>
+
+        <dt class="col-sm-3">Date de creation</dt>
+        <dd class="col-sm-9">{{ pack.dateCreation ? (pack.dateCreation | date:'dd/MM/yyyy HH:mm') : '-' }}</dd>
+
+        <dt class="col-sm-3">Statut</dt>
+        <dd class="col-sm-9">
+          <span class="badge" [ngClass]="pack.actif ? 'bg-success' : 'bg-danger'">
+            {{ pack.actif ? 'Actif' : 'Inactif' }}
+          </span>
+        </dd>
+      </dl>
+      <div class="mt-4">
+        <button pButton class="p-button-outlined p-button-secondary me-2" (click)="back()">Retour</button>
+        <button pButton class="p-button-warning" (click)="edit()">Modifier</button>
+      </div>
+    </div>
+  </div>
+</div>

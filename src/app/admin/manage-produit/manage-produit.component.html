@@ -1,0 +1,169 @@
+﻿<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="h3 mb-0 fw-bold">Gestion des Produits</h2>
+      <p class="text-muted small mb-0">CrÃ©ez et configurez vos offres de produits d'assurance.</p>
+    </div>
+    <div class="col-auto">
+      <button pButton class="p-button-primary d-flex align-items-center shadow-sm" *ngIf="!showForm" (click)="resetForm(); showForm = true">
+        <i class="bi bi-plus-lg me-2"></i> Nouveau Produit
+      </button>
+      <button pButton class="p-button-outlined p-button-secondary d-flex align-items-center shadow-sm" *ngIf="showForm" (click)="showForm = false">
+        <i class="bi bi-x-lg me-2"></i> Annuler
+      </button>
+    </div>
+  </div>
+  <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+
+  <!-- Inline Form -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden animate__animated animate__fadeInDown" *ngIf="showForm">
+    <div class="card-header bg-light border-0 py-3 px-4">
+      <h5 class="card-title fw-bold mb-0">{{ isEditing ? 'Modifier' : 'Ajouter' }} un Produit</h5>
+    </div>
+    <form [formGroup]="produitForm" (ngSubmit)="onSubmit()">
+      <div class="card-body p-4">
+        <div class="row">
+          <div class="col-md-8 mb-3 flex flex-column gap-2">
+            <label for="nomProduit" class="form-label small fw-bold text-uppercase">Nom du Produit</label>
+            <input id="nomProduit" type="text" pInputText class="w-full" formControlName="nomProduit" placeholder="Ex: Pack Famille">
+          </div>
+          <div class="col-md-4 mb-3 flex flex-column gap-2">
+            <label for="prixBase" class="form-label small fw-bold text-uppercase">Prix de Base (DT)</label>
+            <input id="prixBase" type="number" pInputText class="w-full" formControlName="prixBase" placeholder="0">
+          </div>
+        </div>
+        
+        <div class="mb-3 flex flex-column gap-2">
+          <label for="description" class="form-label small fw-bold text-uppercase">Description</label>
+          <textarea id="description" pInputTextarea [rows]="3" class="w-full" formControlName="description" placeholder="DÃ©tails de l'offre..."></textarea>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3 flex flex-column gap-2">
+            <label for="ageMin" class="form-label small fw-bold text-uppercase">Ã‚ge Minimum</label>
+            <input id="ageMin" type="number" pInputText class="w-full" formControlName="ageMin" placeholder="0">
+          </div>
+          <div class="col-md-6 mb-3 flex flex-column gap-2">
+            <label for="ageMax" class="form-label small fw-bold text-uppercase">Ã‚ge Maximum</label>
+            <input id="ageMax" type="number" pInputText class="w-full" formControlName="ageMax" placeholder="100">
+          </div>
+        </div>
+
+        <div class="mb-3 flex flex-column gap-2">
+          <label for="garantiesIds" class="form-label small fw-bold text-uppercase">Garanties AssociÃ©es</label>
+          <p-multiSelect [options]="garanties" formControlName="garantiesIds" optionLabel="nomGarantie" optionValue="idGarantie" 
+                         placeholder="SÃ©lectionner des garanties" styleClass="w-full" display="chip"></p-multiSelect>
+        </div>
+
+        <div class="grid mt-4">
+          <div class="col-12 md:col-6 mb-3">
+            <div class="flex align-items-center justify-content-between bg-light p-3 border-round shadow-1">
+              <label class="small fw-bold" for="chronicSwitch">Maladie chronique autorisÃ©e</label>
+              <p-inputSwitch id="chronicSwitch" formControlName="maladieChroniqueAutorisee"></p-inputSwitch>
+            </div>
+          </div>
+          <div class="col-12 md:col-6 mb-3">
+            <div class="flex align-items-center justify-content-between bg-light p-3 border-round shadow-1">
+              <label class="small fw-bold" for="diabetiqueSwitch">DiabÃ©tique autorisÃ©</label>
+              <p-inputSwitch id="diabetiqueSwitch" formControlName="diabetiqueAutorise"></p-inputSwitch>
+            </div>
+          </div>
+          <div class="col-12 flex align-items-center gap-2 mt-2">
+            <p-inputSwitch id="activeSwitch" formControlName="actif"></p-inputSwitch>
+            <label class="small fw-bold" for="activeSwitch">Produit Actif</label>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer bg-white border-0 p-4 pt-0 text-end">
+        <button pButton type="button" class="p-button-text p-button-secondary me-2" (click)="showForm = false" aria-label="Annuler">Annuler</button>
+        <button pButton type="submit" [disabled]="produitForm.invalid" [attr.aria-label]="isEditing ? 'Mettre à jour' : 'Enregistrer'"><i class="pi" [ngClass]="isEditing ? 'pi-save' : 'pi-check'"></i><span class="ms-2">{{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}</span></button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Search & List Card -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white border-0 py-3 px-4 d-flex align-items-center justify-content-between">
+      <h5 class="mb-0 fw-bold">Liste des Produits</h5>
+      <div class="search-input-wrapper search-input-300">
+        <div class="input-group input-group-sm rounded-pill border overflow-hidden bg-light">
+          <span class="input-group-text bg-transparent border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+          <input pInputText
+            type="text"
+            class="form-control border-0 bg-transparent shadow-none"
+            placeholder="Rechercher..."
+            [(ngModel)]="searchText"
+            (ngModelChange)="filterProduits()"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light text-uppercase small fw-bold">
+            <tr>
+              <th class="px-4 py-3 sortable-col" (click)="sortProduits('nomProduit')">
+                Produit <i *ngIf="sortField === 'nomProduit'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+              </th>
+              <th class="py-3 sortable-col" (click)="sortProduits('prixBase')">
+                Prix de Base <i *ngIf="sortField === 'prixBase'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+              </th>
+              <th class="py-3 sortable-col" (click)="sortProduits('ageMin')">
+                Ã‚ge <i *ngIf="sortField === 'ageMin'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+              </th>
+              <th class="py-3">Garanties</th>
+              <th class="py-3 text-center sortable-col" (click)="sortProduits('actif')">
+                Statut <i *ngIf="sortField === 'actif'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+              </th>
+              <th class="px-4 py-3 text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of filteredProduits">
+              <td class="px-4 fw-semibold text-dark">
+                <a [routerLink]="['/admin','produits', p.idProduit]" class="text-decoration-none hover-primary">{{ p.nomProduit }}</a>
+              </td>
+              <td class="fw-bold text-primary">{{ p.prixBase | number:'1.2-2' }} DT</td>
+              <td><span class="badge bg-light text-dark border">{{ p.ageMin }} - {{ p.ageMax }} ans</span></td>
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  <span *ngFor="let name of getGarantieNames(p.garantiesIds).split(',')" class="badge bg-info-subtle text-info border border-info-subtle extra-small">
+                    {{ name.trim() }}
+                  </span>
+                </div>
+              </td>
+              <td class="text-center">
+                <span class="badge rounded-pill" [ngClass]="p.actif ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger'">
+                  {{ p.actif ? 'Actif' : 'Inactif' }}
+                  {{ p.dateCreation | date:'dd/MM/yyyy HH:mm' }}
+                </span>
+              </td>
+              <td class="px-4 text-end">
+                <div class="action-buttons d-flex justify-content-end gap-2">
+                  <button pButton class="p-button-sm p-button-text p-button-secondary rounded-pill px-3 shadow-none border" (click)="modifier(p)" title="Modifier" aria-label="Modifier">
+                    <i class="bi bi-pencil-square text-primary"></i>
+                  </button>
+                  <button pButton class="p-button-sm p-button-text p-button-secondary rounded-pill px-3 shadow-none border" (click)="supprimer(p.idProduit)" title="Supprimer" aria-label="Supprimer">
+                    <i class="bi bi-trash text-danger"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredProduits.length === 0">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-box-seam fs-1 d-block mb-3 opacity-25"></i>
+                Aucun produit trouvÃ©.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+

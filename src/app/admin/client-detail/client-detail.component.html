@@ -1,0 +1,63 @@
+<div class="container-fluid py-4">
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-3">Chargement...</p>
+  </div>
+
+  <div *ngIf="!isLoading && error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!isLoading && client" class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="row mb-4 align-items-center">
+        <div class="col">
+          <h2 class="h3 mb-0 fw-bold">{{ client.userName }}</h2>
+          <p class="text-muted small mb-0">{{ client.email }}</p>
+        </div>
+      </div>
+      
+      <app-breadcrumb [items]="breadcrumbItems" />
+
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Téléphone</dt>
+        <dd class="col-sm-9">{{ client.phone }}</dd>
+
+        <dt class="col-sm-3">Profession</dt>
+        <dd class="col-sm-9">{{ client.profession }}</dd>
+
+        <dt class="col-sm-3">Âge</dt>
+        <dd class="col-sm-9">{{ client.age }} ans</dd>
+
+        <dt class="col-sm-3">Sexe</dt>
+        <dd class="col-sm-9">{{ client.sexe }}</dd>
+
+        <dt class="col-sm-3">Etat</dt>
+        <dd class="col-sm-9">{{ client.actif ? 'Actif' : 'Inactif' }}</dd>
+
+        <dt class="col-sm-3">Rôle</dt>
+        <dd class="col-sm-9">{{ client.role }}</dd>
+
+        <dt class="col-sm-3">Date de création</dt>
+        <dd class="col-sm-9">{{ client.dateCreation | date:'dd/MM/yyyy' }}</dd>
+      </dl>
+
+      <div class="mt-4 d-flex flex-wrap gap-2">
+        <button pButton class="p-button-outlined p-button-secondary" (click)="back()">Retour</button>
+        <button pButton class="p-button-primary" (click)="edit()">Modifier</button>
+      </div>
+
+      <!-- Additional sections (placeholders for future APIs) -->
+      <div class="mt-5">
+        <h5 class="fw-bold">Historique</h5>
+        <p class="text-muted">Aucun historique disponible. Un endpoint backend peut être ajouté pour afficher les dernières actions du client.</p>
+
+        <h5 class="fw-bold mt-4">Packs souscrits</h5>
+        <p class="text-muted">Aucune information disponible. Ajoutez un endpoint pour récupérer les packs associés à ce client.</p>
+
+        <h5 class="fw-bold mt-4">Garanties liées</h5>
+        <p class="text-muted">Aucune information disponible. Ajoutez un endpoint pour récupérer les garanties liées à ce client.</p>
+      </div>
+    </div>
+  </div>
+</div>

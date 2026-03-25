@@ -1,0 +1,282 @@
+﻿<div class="container-fluid py-4">
+  <!-- Breadcrumb -->
+  <!-- Header -->
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="h3 mb-0 fw-bold">Gestion des Clients</h2>
+      <p class="text-muted small mb-0">GÃ©rez les comptes clients et suivez leurs informations de santÃ©.</p>
+    </div>
+    <div class="col-auto">
+      <button 
+        pButton
+        class="p-button-primary d-flex align-items-center shadow-sm" 
+        *ngIf="!showForm"
+        (click)="selectedClientId = null; resetForm(); showForm = true"
+        aria-label="Ajouter un nouveau client">
+        <i class="bi bi-person-plus-fill me-2"></i> Nouveau Client
+      </button>
+      <button 
+        pButton
+        class="p-button-outlined p-button-secondary d-flex align-items-center shadow-sm" 
+        *ngIf="showForm"
+        (click)="showForm = false">
+        <i class="bi bi-x-lg me-2"></i> Annuler
+      </button>
+    </div>
+  </div>
+  <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+
+  <!-- Inline Form Card -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden animate__animated animate__fadeInDown" *ngIf="showForm">
+    <div class="card-header bg-light border-0 py-3 px-4">
+      <h5 class="card-title fw-bold mb-0">
+        {{ selectedClientId ? 'Modifier' : 'Ajouter' }} un Client
+      </h5>
+    </div>
+    <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+      <div class="card-body p-4">
+        
+        <!-- Nom / Email -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="userName" class="form-label small fw-bold text-uppercase">Nom utilisateur</label>
+            <div class="p-input-icon-left w-full">
+              <i class="pi pi-user"></i>
+              <input id="userName" type="text" pInputText class="w-full" formControlName="userName" placeholder="jean-dupont">
+            </div>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('userName')?.hasError('required') && clientForm.get('userName')?.touched">
+              Le nom utilisateur est obligatoire.
+            </small>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('userName')?.hasError('minlength') && clientForm.get('userName')?.touched">
+              Le username doit contenir au moins 3 caracteres.
+            </small>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('userName')?.hasError('maxlength') && clientForm.get('userName')?.touched">
+              Le username ne peut pas depasser 30 caracteres.
+            </small>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('userName')?.hasError('usernameFormat') && clientForm.get('userName')?.touched">
+              Format invalide. Exemple valide: jean-marc (espaces et underscores interdits).
+            </small>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('userName')?.hasError('userNameTaken') && clientForm.get('userName')?.touched">
+              Ce nom utilisateur est deja utilise.
+            </small>
+            <small class="block mt-1" [class.p-error]="!usernameValidation.isValid" [class.text-success]="usernameValidation.isValid"
+                   *ngIf="clientForm.get('userName')?.value && usernameValidation.message">
+              {{ usernameValidation.message }}
+            </small>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="email" class="form-label small fw-bold text-uppercase">Email Professionnel</label>
+            <div class="p-input-icon-left w-full">
+              <i class="pi pi-envelope"></i>
+              <input id="email" type="email" pInputText class="w-full" formControlName="email" placeholder="jean.dupont@example.com">
+            </div>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('email')?.hasError('required') && clientForm.get('email')?.touched">
+              L'email est obligatoire.
+            </small>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('email')?.hasError('email') && clientForm.get('email')?.touched">
+              Format email invalide.
+            </small>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('email')?.hasError('emailTaken') && clientForm.get('email')?.touched">
+              Cet email est deja utilise.
+            </small>
+            <small class="block mt-1" [class.p-error]="!emailValidation.isValid" [class.text-success]="emailValidation.isValid"
+                   *ngIf="clientForm.get('email')?.value && emailValidation.message">
+              {{ emailValidation.message }}
+            </small>
+          </div>
+        </div>
+
+        <!-- Mot de passe temporaire -->
+        <div class="row" *ngIf="!selectedClientId">
+          <div class="col-12 mb-3">
+            <label for="password" class="form-label small fw-bold text-uppercase">Mot de passe temporaire</label>
+            <p-password id="password" formControlName="password" [toggleMask]="true" styleClass="w-full" inputStyleClass="w-full" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"></p-password>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('password')?.hasError('required') && clientForm.get('password')?.touched">
+              Le mot de passe est obligatoire.
+            </small>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('password')?.hasError('minlength')">
+              Le mot de passe doit faire au moins 6 caracteres.
+            </small>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('password')?.hasError('passwordStrength')">
+              Le mot de passe doit contenir au moins 1 lettre et 1 chiffre.
+            </small>
+            <small class="block mt-1" [class.p-error]="!passwordValidation.isValid" [class.text-success]="passwordValidation.isValid"
+                   *ngIf="clientForm.get('password')?.value && passwordValidation.message">
+              {{ passwordValidation.message }}
+            </small>
+          </div>
+        </div>
+
+        <!-- TÃ©lÃ©phone / Age / Sexe -->
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="phone" class="form-label small fw-bold text-uppercase">TÃ©lÃ©phone</label>
+            <input id="phone" type="number" pInputText class="w-full" formControlName="phone" placeholder="06XXXXXXXX">
+            <small class="p-error block mt-1" *ngIf="clientForm.get('phone')?.hasError('required') && clientForm.get('phone')?.touched">
+              Le telephone est obligatoire.
+            </small>
+            <small class="p-error block mt-1" *ngIf="clientForm.get('phone')?.hasError('tunisianPhone') && clientForm.get('phone')?.touched">
+              Numero invalide. Utilisez 8 chiffres commencant par 2 a 9.
+            </small>
+            <small class="block mt-1" [class.p-error]="!phoneValidation.isValid" [class.text-success]="phoneValidation.isValid"
+                   *ngIf="clientForm.get('phone')?.value && phoneValidation.message">
+              {{ phoneValidation.message }}
+            </small>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="age" class="form-label small fw-bold text-uppercase">Ã‚ge</label>
+            <input id="age" type="number" pInputText class="w-full" formControlName="age" placeholder="25">
+          </div>
+          <div class="col-md-4 mb-3 flex flex-column">
+            <label for="sexe" class="form-label small fw-bold text-uppercase">Sexe</label>
+            <p-dropdown id="sexe" [options]="[{label: 'Masculin', value: 'M'}, {label: 'FÃ©minin', value: 'F'}]" formControlName="sexe" optionLabel="label" optionValue="value" styleClass="w-full"></p-dropdown>
+          </div>
+        </div>
+
+        <!-- Profession / Situation -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="profession" class="form-label small fw-bold text-uppercase">Profession</label>
+            <input id="profession" type="text" pInputText class="w-full" formControlName="profession" placeholder="Ex: MÃ©decin">
+          </div>
+          <div class="col-md-6 mb-3 flex flex-column">
+            <label for="situationFamiliale" class="form-label small fw-bold text-uppercase">Situation Familiale</label>
+            <p-dropdown id="situationFamiliale" [options]="[{label: 'CÃ©libataire', value: 'CELIBATAIRE'}, {label: 'MariÃ©(e)', value: 'MARIE'}, {label: 'DivorcÃ©(e)', value: 'DIVORCE'}, {label: 'Veuf/Veuve', value: 'VEUF'}]" formControlName="situationFamiliale" optionLabel="label" optionValue="value" styleClass="w-full"></p-dropdown>
+          </div>
+        </div>
+
+        <!-- Infos mÃ©dicales -->
+        <div class="bg-light p-4 rounded-4 mt-4">
+          <h6 class="small fw-bold text-uppercase mb-4 text-primary d-flex align-items-center">
+            <i class="pi pi-heart-fill me-2"></i>Informations MÃ©dicales
+          </h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="flex align-items-center justify-content-between bg-white p-3 border-round shadow-1">
+                <label class="small fw-bold" for="health1">Maladie Chronique</label>
+                <p-inputSwitch id="health1" formControlName="maladieChronique"></p-inputSwitch>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="flex align-items-center justify-content-between bg-white p-3 border-round shadow-1">
+                <label class="small fw-bold" for="health2">DiabÃ©tique</label>
+                <p-inputSwitch id="health2" formControlName="diabetique"></p-inputSwitch>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="flex align-items-center justify-content-between bg-white p-3 border-round shadow-1">
+                <label class="small fw-bold" for="health3">Hypertension</label>
+                <p-inputSwitch id="health3" formControlName="tension"></p-inputSwitch>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex align-items-center gap-2 mt-4">
+          <p-inputSwitch id="clientActif" formControlName="actif"></p-inputSwitch>
+          <label class="small fw-bold" for="clientActif">Client Actif</label>
+        </div>
+      </div>
+
+      <div class="card-footer bg-white border-0 p-4 pt-0 text-end">
+        <div class="text-danger small fw-bold mb-3 d-inline-block me-3" *ngIf="errorMsg">
+          <i class="pi pi-exclamation-triangle me-1"></i>{{ errorMsg }}
+        </div>
+        <button pButton type="button" label="Annuler" class="p-button-text p-button-secondary me-2" (click)="showForm = false"></button>
+        <button pButton type="submit" [label]="selectedClientId ? 'Mettre Ã  jour' : 'Enregistrer'" [icon]="selectedClientId ? 'pi pi-save' : 'pi pi-check'" [loading]="loading" [disabled]="loading || clientForm.invalid"></button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Search & List Card -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white border-0 py-3 px-4 d-flex align-items-center justify-content-between">
+      <h5 class="mb-0 fw-bold">Liste des Clients</h5>
+      <div class="search-input-wrapper search-input-300">
+        <div class="input-group input-group-sm rounded-pill border overflow-hidden bg-light">
+          <span class="input-group-text bg-transparent border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+          <input pInputText
+            type="text"
+            class="form-control border-0 bg-transparent shadow-none"
+            placeholder="Rechercher..."
+            [value]="searchText"
+            (input)="onSearchInput($event)"
+          />
+        </div>
+      </div>
+    </div>
+    
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light text-uppercase small fw-bold">
+            <tr>
+              <th class="px-4 py-3">Client</th>
+              <th class="py-3">Contact</th>
+              <th class="py-3">Profession</th>
+              <th class="py-3 text-center">Age/Sexe</th>
+              <th class="py-3 text-center">Statut</th>
+              <th class="px-4 py-3 text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let client of filteredClients">
+              <td class="px-4">
+                <div class="d-flex align-items-center">
+                  <div class="avatar bg-primary-subtle text-primary rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold shadow-sm avatar-size-40">
+                    {{ client.userName.charAt(0) | uppercase }}
+                  </div>
+                  <div class="fw-semibold text-dark">
+                    <a [routerLink]="['/admin', 'clients', client.idUser]" class="text-decoration-none hover-primary">
+                      {{ client.userName }}
+                    </a>
+                  </div>
+                </div>
+              </td>
+              <td class="small">
+                <div class="text-dark fw-medium"><i class="bi bi-envelope me-1 text-muted"></i>{{ client.email }}</div>
+                <div class="text-muted"><i class="bi bi-telephone me-1"></i>{{ client.phone }}</div>
+              </td>
+              <td><span class="badge bg-light text-dark border fw-normal">{{ client.profession }}</span></td>
+              <td class="text-center small">{{ client.age }} ans / <span class="fw-bold">{{ client.sexe }}</span></td>
+              <td class="text-center">
+                <span class="badge rounded-pill" [ngClass]="client.actif !== false ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger'">
+                  {{ client.actif !== false ? 'Actif' : 'Inactif' }}
+                </span>
+              </td>
+              <td class="px-4 text-end">
+                <div class="action-buttons d-flex justify-content-end gap-2">
+                  <button pButton class="p-button-sm p-button-text p-button-secondary rounded-pill px-3 shadow-none border" (click)="updateClient(client); showForm = true" title="Modifier">
+                    <i class="bi bi-pencil-square text-primary"></i>
+                  </button>
+                  <button pButton class="p-button-sm p-button-text p-button-secondary rounded-pill px-3 shadow-none border" (click)="deleteClient(client.idUser!)" title="Supprimer">
+                    <i class="bi bi-trash text-danger"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredClients.length === 0">
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-people fs-1 d-block mb-3 opacity-25"></i>
+                Aucun client trouvÃ©.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Area -->
+  <div class="position-fixed bottom-0 end-0 p-3 toast-zindex">
+    <div class="toast show align-items-center text-white bg-success border-0 shadow-lg mb-3 animate__animated animate__fadeInRight" *ngIf="successMsg">
+      <div class="d-flex">
+        <div class="toast-body"><i class="bi bi-check-circle-fill me-2"></i>{{ successMsg }}</div>
+        <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-text p-button-secondary me-2 m-auto" (click)="successMsg = ''" title="Fermer" aria-label="Fermer"></button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+

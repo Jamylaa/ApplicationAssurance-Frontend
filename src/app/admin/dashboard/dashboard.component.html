@@ -1,0 +1,77 @@
+﻿<div class="container-fluid py-4">
+  <app-breadcrumb [items]="[{ label: 'Dashboard', link: '/admin/dashboard' }]"></app-breadcrumb>
+  <!-- Welcome Banner -->
+  <div class="welcome-banner rounded-4 p-4 mb-4 d-flex align-items-center justify-content-between shadow-sm">
+    <div>
+      <h4 class="fw-bold text-white mb-1"> Bienvenue, Administrateur </h4>
+      <p class="text-white-50 mb-0 small"> Vue d'ensemble de votre plateforme d'assurance. </p>
+    </div>
+    <div class="d-none d-md-block">
+      <i class="bi bi-shield-check text-white opacity-25 hero-shield-icon"></i>
+    </div>
+  </div>
+  <!-- Stats Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon bg-primary-subtle text-primary rounded-3 me-3">
+            <i class="bi bi-box-seam fs-4"></i>
+          </div>
+                 <div>
+            <p class="text-muted small text-uppercase fw-bold mb-0"> Packs </p>
+            <h3 class="mb-0 fw-bold">{{ packsCount }}</h3>
+            <small class="text-warning"><i class="bi bi-dot"></i> Offres Actives </small>
+          </div>
+        </div>
+        <div class="mt-3">
+          <a pButton routerLink="/admin/packs" class="p-button-sm p-button-outlined p-button-warning rounded-pill"> GÃ©rer â†’ </a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon bg-success-subtle text-success rounded-3 me-3">
+            <i class="bi bi-shield-check fs-4"></i>
+          </div>
+          <div>
+            <p class="text-muted small text-uppercase fw-bold mb-0"> Produits </p>
+            <h3 class="mb-0 fw-bold">{{ produitsCount }}</h3>
+            <small class="text-success"><i class="bi bi-arrow-up-short"></i> Total Assurance </small>
+          </div>
+        </div>
+        <div class="mt-3">
+          <a pButton routerLink="/admin/produits" class="p-button-sm p-button-outlined p-button-primary rounded-pill"> GÃ©rer â†’</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card card border-0 shadow-sm rounded-4 p-4 h-100">
+        <div class="d-flex align-items-center">
+          <div class="stat-icon bg-warning-subtle text-warning rounded-3 me-3">
+            <i class="bi bi-collection fs-4"></i>
+          </div>
+          <div>
+            <p class="text-muted small text-uppercase fw-bold mb-0">Garanties</p>
+            <h3 class="mb-0 fw-bold">{{ garantiesCount }}</h3>
+            <small class="text-success"><i class="bi bi-check2-circle"></i> Disponibles</small>
+          </div>
+        </div>
+        <div class="mt-3">
+          <a pButton routerLink="/admin/garanties" class="p-button-sm p-button-outlined p-button-success rounded-pill">GÃ©rer â†’</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Info Card -->
+  <div class="card border-0 shadow-sm rounded-4 p-4">
+    <div class="d-flex align-items-center mb-3">
+      <i class="bi bi-bar-chart-line text-primary me-2 fs-5"></i>
+      <h5 class="fw-bold mb-0"> Statistiques de performance</h5>
+    </div>
+    <p class="text-muted mb-0"> Utilisez la barre latÃ©rale pour accÃ©der Ã  toutes les fonctionnalitÃ©s de gestion de la plateforme.</p>
+  </div>
+</div>
+
+

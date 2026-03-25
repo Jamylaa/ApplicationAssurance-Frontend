@@ -1,0 +1,80 @@
+﻿<div class="container py-5">
+  <div class="text-center mb-5">
+    <h1 class="display-5 fw-bold text-primary">Souscription Ã  un Contrat</h1>
+    <p class="lead text-muted">Choisissez la protection qui vous convient le mieux en quelques Ã©tapes.</p>
+  </div>
+  <!-- Stepper -->
+  <div class="d-flex justify-content-center mb-5">
+    <div class="stepper d-flex align-items-center w-75 position-relative">
+      <div class="step" [class.active]="step >= 1">1</div>
+      <div class="line" [class.active]="step >= 2"></div>
+      <div class="step" [class.active]="step >= 2">2</div>
+      <div class="line" [class.active]="step >= 3"></div>
+      <div class="step" [class.active]="step >= 3">3</div>
+    </div>
+  </div>
+  <!-- Step 1: Browse Packs -->
+  <div *ngIf="step === 1" class="animate-fade-in">
+    <div class="row g-4">
+      <div *ngFor="let pack of packs" class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm hover-lift overflow-hidden">
+          <div class="card-header border-0 bg-primary text-white text-center py-3 position-relative">
+            <h4 class="mb-0 fw-bold">{{ pack.nomPack }}</h4>
+            <span class="badge position-absolute top-0 end-0 m-2" [ngClass]="{
+              'bg-warning text-dark': pack.niveauCouverture === 'gold',
+              'bg-info': pack.niveauCouverture === 'premium',
+              'bg-light text-dark': pack.niveauCouverture === 'basic'
+            }">{{ pack.niveauCouverture | uppercase }}</span>
+          </div>
+          <div class="card-body p-4">
+            <div class="text-center mb-4">
+              <span class="display-4 fw-bold text-primary">{{ pack.prixMensuel }}</span>
+              <span class="text-muted">DT/mois</span>
+            </div>
+            <p class="text-muted small mb-4">{{ pack.description }}</p>
+            <ul class="list-unstyled mb-0">
+              <li class="mb-2 d-flex align-items-center">
+                <i class="bi bi-patch-check-fill text-success me-2"></i>
+                <span>Engagement: {{ pack.dureeMinContrat }} mois</span>
+              </li>
+              <li class="mb-2 d-flex align-items-center">
+                <i class="bi bi-patch-check-fill text-success me-2"></i>
+                <span class="small">Couverture {{ pack.niveauCouverture }}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="card-footer border-0 bg-white p-4 pt-0">
+            <button class="btn btn-outline-primary w-100 rounded-pill fw-bold py-2" (click)="selectPack(pack)">
+              SÃ©lectionner ce pack
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Step 2: Confirmation -->
+  <div *ngIf="step === 2" class="animate-fade-in text-center mx-auto step-2-max-600">
+    <div class="card border-0 shadow-lg p-5">
+      <i class="bi bi-info-circle display-1 text-primary mb-4 opacity-50"></i>
+      <h3 class="fw-bold mb-3">RÃ©capitulatif de votre choix</h3>
+      <p class="text-muted mb-4">Vous avez choisi le pack <strong>{{ selectedPack?.nomPack }}</strong>. Souhaitez-vous confirmer votre souscription ?</p>
+      
+      <div class="d-flex gap-3 justify-content-center mt-4">
+        <button class="btn btn-light px-5 rounded-pill" (click)="step = 1">Retour</button>
+        <button class="btn btn-primary px-5 rounded-pill shadow" (click)="confirmSubscription()">Confirmer</button>
+      </div>
+    </div>
+  </div>
+  <!-- Step 3: Success -->
+  <div *ngIf="step === 3" class="animate-fade-in text-center">
+    <div class="card border-0 shadow-sm p-5 bg-white">
+      <div class="success-icon mb-4">
+        <i class="bi bi-check-circle-fill text-success display-1 animate-bounce"></i>
+      </div>
+      <h2 class="fw-bold text-dark">FÃ©licitations !</h2>
+      <p class="lead text-muted mb-4">Votre demande de souscription pour le <strong>{{ selectedPack?.nomPack }}</strong> a Ã©tÃ© enregistrÃ©e avec succÃ¨s.</p>
+      <button class="btn btn-primary px-5 rounded-pill" routerLink="/client">Retour au tableau de bord</button>
+    </div>
+  </div>
+</div>
+

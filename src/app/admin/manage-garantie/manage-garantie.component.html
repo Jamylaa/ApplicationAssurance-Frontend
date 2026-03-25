@@ -1,0 +1,143 @@
+﻿<div class="container-fluid py-4">
+   <!-- Header -->
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="h3 mb-0 fw-bold">Gestion des Garanties</h2>
+      <p class="text-muted small mb-0">Listez, ajoutez et gÃ©rez les garanties d'assurance.</p>
+    </div>
+    <div class="col-auto">
+      <button pButton class="p-button-primary d-flex align-items-center shadow-sm" *ngIf="!showForm" (click)="resetForm(); showForm = true">
+        <i class="bi bi-plus-lg me-2"></i> Nouvelle Garantie
+      </button>
+      <button pButton class="p-button-outlined p-button-secondary d-flex align-items-center shadow-sm" *ngIf="showForm" (click)="showForm = false">
+        <i class="bi bi-x-lg me-2"></i> Annuler
+      </button>
+    </div>
+  </div>
+  <!-- Inline Form -->
+   <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+  <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden animate__animated animate__fadeInDown" *ngIf="showForm">
+    <div class="card-header bg-light border-0 py-3 px-4">
+      <h5 class="card-title fw-bold mb-0">{{ isEditing ? 'Modifier' : 'Ajouter' }} une Garantie</h5>
+    </div>
+    <form [formGroup]="garantieForm" (ngSubmit)="onSubmit()">
+      <div class="modal-body p-4">
+        <div class="mb-3">
+          <label for="nomGarantie" class="form-label small fw-bold text-uppercase">Nom de la Garantie</label>
+          <input pInputText id="nomGarantie" type="text" class="form-control rounded-3" formControlName="nomGarantie" placeholder="Ex: Soins Dentaires">
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label small fw-bold text-uppercase">Description</label>
+          <textarea pInputTextarea id="description" class="form-control rounded-3" formControlName="description" rows="3" placeholder="DÃ©crivez la garantie..."></textarea>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="plafondAnnuel" class="form-label small fw-bold text-uppercase">Plafond Annuel (DT)</label>
+            <div class="input-group">
+              <input pInputText id="plafondAnnuel" type="number" class="form-control rounded-start-3" formControlName="plafondAnnuel" placeholder="0">
+              <span class="input-group-text bg-white border-start-0 rounded-end-3 text-muted small">DT</span>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="tauxCouverture" class="form-label small fw-bold text-uppercase">Couverture (%)</label>
+            <div class="input-group">
+              <input pInputText id="tauxCouverture" type="number" class="form-control rounded-start-3" formControlName="tauxCouverture" placeholder="70">
+              <span class="input-group-text bg-white border-start-0 rounded-end-3 text-muted small">%</span>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-2">
+          <p-inputSwitch id="flexSwitchCheckDefault" formControlName="actif"></p-inputSwitch>
+          <label class="small fw-bold mb-0" for="flexSwitchCheckDefault">Garantie Active</label>
+        </div>
+      </div>
+      <div class="card-footer bg-white border-0 p-4 pt-0 text-end">
+        <button pButton type="button" class="p-button-text p-button-secondary me-2" (click)="showForm = false" aria-label="Annuler">Annuler</button>
+        <button pButton type="submit" [disabled]="garantieForm.invalid" [attr.aria-label]="isEditing ? 'Mettre à jour' : 'Enregistrer'"><i class="pi" [ngClass]="isEditing ? 'pi-save' : 'pi-check'"></i><span class="ms-2">{{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}</span></button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Search & List Card -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white border-0 py-3 px-4 d-flex align-items-center justify-content-between">
+      <h5 class="mb-0 fw-bold">Liste des Garanties</h5>
+      <div class="search-input-wrapper search-input-300">
+        <div class="input-group input-group-sm rounded-pill border overflow-hidden bg-light">
+          <span class="input-group-text bg-transparent border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+          <input pInputText
+            type="text"
+            class="form-control border-0 bg-transparent shadow-none"
+            placeholder="Rechercher..."
+            [(ngModel)]="searchText"
+            (ngModelChange)="filterGaranties()"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light text-uppercase small fw-bold">
+            <tr>
+              <th class="px-4 py-3 sortable-col" (click)="sortGaranties('nomGarantie')">
+                Nom <i *ngIf="sortField === 'nomGarantie'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+              </th>
+              <th class="py-3 sortable-col" (click)="sortGaranties('description')">
+                Description
+              </th>
+              <th class="py-3 text-end sortable-col" (click)="sortGaranties('plafondAnnuel')">
+                Plafond <i *ngIf="sortField === 'plafondAnnuel'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+              </th>
+              <th class="py-3 text-center sortable-col" (click)="sortGaranties('tauxCouverture')">
+                Taux <i *ngIf="sortField === 'tauxCouverture'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+              </th>
+              <th class="py-3 text-center sortable-col" (click)="sortGaranties('actif')">
+                Statut <i *ngIf="sortField === 'actif'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+              </th>
+              <th class="px-4 py-3 text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let g of filteredGaranties">
+              <td class="px-4 fw-semibold text-dark">
+                <a [routerLink]="['/admin','garanties', g.idGarantie]" class="text-decoration-none hover-primary">{{ g.nomGarantie }}</a>
+              </td>
+              <td class="text-muted small description-max-300">{{ g.description }}</td>
+              <td class="text-end fw-bold text-primary">{{ g.plafondAnnuel | number:'1.2-2' }} DT</td>
+              <td class="text-center font-monospace">{{ g.tauxCouverture }}%</td>
+              <td class="text-center">
+                <span class="badge rounded-pill" [ngClass]="g.actif ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger'">
+                  {{ g.actif ? 'Active' : 'Inactive' }}
+                  {{ g.dateCreation | date:'dd/MM/yyyy HH:mm' }}
+                </span>
+              </td>
+              <td class="px-4 text-end">
+                <div class="action-buttons d-flex justify-content-end gap-2">
+                  <button pButton class="p-button-sm p-button-text p-button-secondary rounded-pill px-3 shadow-none border" (click)="modifier(g)" title="Modifier" aria-label="Modifier">
+                    <i class="bi bi-pencil-square text-primary"></i>
+                  </button>
+                  <button pButton class="p-button-sm p-button-text p-button-secondary rounded-pill px-3 shadow-none border" (click)="supprimer(g.idGarantie)" title="Supprimer" aria-label="Supprimer">
+                    <i class="bi bi-trash text-danger"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredGaranties.length === 0">
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-shield-lock fs-1 d-block mb-3 opacity-25"></i>
+                Aucune garantie trouvÃ©e.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+

@@ -1,0 +1,78 @@
+<div class="admin-chat-container">
+  <div class="chat-window">
+    <div class="chat-header">
+      <h3>Chat de Recommandation</h3>
+      <span class="status">En ligne</span>
+    </div>
+    <!-- Barre de progression -->
+    <div class="progress-container" *ngIf="progress > 0 && !isComplete">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress"></div>
+      </div>
+      <span class="progress-text">{{ progress }}% complété</span>
+    </div>
+    <!-- Résumé du profil -->
+    <div class="profile-summary" *ngIf="hasCollectedData">
+      <div class="summary-header">
+        <h4>Profil Client</h4>
+        <button pButton class="toggle-summary" (click)="showSummary = !showSummary">
+          {{ showSummary ? 'Cacher' : 'Voir' }} le résumé
+        </button>
+      </div>
+      <div class="summary-content" *ngIf="showSummary" [innerHTML]="getProfileSummary()"></div>
+    </div>
+    
+    <div class="messages-container" #scrollContainer>
+      <div *ngFor="let msg of messages" class="message-wrapper" [ngClass]="msg.sender">
+        <div class="message">
+          <div [innerHTML]="formatMessage(msg.text)"></div>
+          <span class="time">{{ msg.time | date:'HH:mm' }}</span>
+        </div>
+      </div>
+      <!-- Recommandations -->
+      <div class="recommendations" *ngIf="recommendations.length > 0">
+        <h4>Packs Recommandés pour ce Client</h4>
+        <div class="pack-list">
+          <div *ngFor="let pack of recommendations" class="pack-item">
+            <div class="pack-info">
+              <h5>{{ pack.nomPack }}</h5>
+              <p>Score : {{ pack.score }}/100</p>
+              <div class="pack-reasons" *ngIf="pack.raisons && pack.raisons.length > 0">
+                <small *ngFor="let raison of pack.raisons.slice(0, 2)">• {{ raison }}</small>
+              </div>
+            </div>
+            <button pButton class="details-btn" (click)="viewPackDetails(pack.idPack)">
+              Détails
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Indicateur de chargement -->
+      <div class="typing-indicator" *ngIf="loading">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="input-wrapper">
+        <input pInputText
+          type="text" 
+          [(ngModel)]="userInput" 
+          (keyup)="onKeyPress($event)"
+          placeholder="Tapez votre message ici..."
+          [disabled]="loading">
+        <button pButton (click)="sendMessage()" [disabled]="!userInput.trim() || loading">
+          <span *ngIf="!loading">Envoyer</span>
+          <span *ngIf="loading">...</span>
+        </button>
+      </div>
+      <!-- Actions supplémentaires -->
+      <div class="action-buttons" *ngIf="isComplete || hasCollectedData">
+        <button pButton class="reset-btn" (click)="resetConversation()">
+          Nouvelle conversation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

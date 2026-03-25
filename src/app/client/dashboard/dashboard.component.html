@@ -1,0 +1,44 @@
+<div class="client-container">
+    <nav class="navbar">
+        <div class="logo">Vermeg</div>
+        <div class="nav-links">
+            <a routerLink="/client" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Accueil</a>
+            <a routerLink="/client/chatbot" routerLinkActive="active">Chatbot</a>
+            <a routerLink="/client/pack-creator" routerLinkActive="active">Pack Creator</a>
+            <a *ngIf="isAdmin" routerLink="/admin" class="btn-backoffice">⚙️ Backoffice</a>
+            <button class="btn-logout" (click)="logout()">Déconnexion</button>
+        </div>
+    </nav>
+
+    <main class="hero">
+        <div class="hero-content">
+            <h1>Bienvenue sur votre Espace Client</h1>
+            <p>Découvrez nos solutions d'assurance intelligentes et personnalisées.</p>
+            <div class="cta-group">
+                <button class="btn-primary" routerLink="/client/chatbot">Parler au Chatbot</button>
+                <button class="btn-primary" routerLink="/client/pack-creator">Creer un pack</button>
+                <button class="btn-secondary">Voir mes contrats</button>
+            </div>
+        </div>
+    </main>
+
+    <section class="features">
+        <div class="feature-card">
+            <div class="icon">🤖</div> 
+            <h3>Recommandations IA</h3>
+            <p>Notre moteur d'IA analyse vos besoins pour vous proposer le meilleur pack.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🛡</div>
+            <h3>Garanties Flexibles</h3>
+            <p>Adaptez vos plafonds et couvertures en temps réel.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">⚡️</div>
+            <h3>Assistance Rapide</h3>
+            <p>Un sinistre ? Déclarez-le en quelques minutes via notre interface.</p>
+        </div>
+    </section>
+</div>
+
+

@@ -1,0 +1,93 @@
+﻿<div class="container-fluid py-4 d-flex flex-column chat-full-height">
+  <app-breadcrumb [items]= "breadcrumbItems"></app-breadcrumb>
+  <!-- Header & Progress -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+      <div class="chat-avatar-icon me-3">
+        <i class="bi bi-stars"></i>
+      </div>
+      <div>
+        <h4 class="fw-bold mb-0"> Assistant IA Administrateur </h4>
+        <p class="text-muted small mb-0"> Guide de crÃ©ation de Garanties, Produits et Packs.</p>
+      </div>
+    </div>
+    
+    <div class="text-end progress-min-width" *ngIf="progress > 0">
+      <div class="small fw-bold mb-1">Progression : {{progress}} % </div>
+      <div class="progress progress-thin">
+        <div class="progress-bar" role="progressbar" aria-label="Progression de creation" [style.width.%]="progress" 
+             [attr.aria-valuenow]="progress" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages-container flex-grow-1 overflow-auto rounded-4 border bg-light p-3 mb-3" #scrollContainer>
+    <div *ngFor="let msg of messages" class="d-flex mb-3"
+      [ngClass]="msg.sender === 'user' ? 'justify-content-end' : 'justify-content-start'">
+      <div *ngIf="msg.sender !== 'user'" class="me-2 flex-shrink-0">
+        <div class="ai-avatar">
+          <i class="bi bi-robot"></i>
+        </div>
+      </div>
+      <div class="message-bubble px-3 py-2 rounded-3 shadow-sm"
+        [ngClass]="msg.sender === 'user' ? 'bg-primary text-white user-bubble' : 'bg-white text-dark assistant-bubble'">
+        <div class="message-text-preline">{{ msg.text }}</div>
+      </div>
+      <div *ngIf="msg.sender === 'user'" class="ms-2 flex-shrink-0">
+        <div class="user-avatar">
+          <i class="bi bi-person-fill"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="d-flex justify-content-start mb-3" *ngIf="loading">
+      <div class="me-2"><div class="ai-avatar"><i class="bi bi-robot"></i></div></div>
+      <div class="message-bubble bg-white px-3 py-2 rounded-3 shadow-sm text-muted fst-italic">
+        <span class="typing-dots">L'IA prÃ©pare la suite<span>.</span><span>.</span><span>.</span></span>
+      </div>
+    </div>
+
+    <!-- Success / Reset -->
+    <div class="text-center my-4" *ngIf="isComplete">
+      <div class="p-3 bg-white rounded-4 border shadow-sm d-inline-block">
+        <i class="bi bi-check-circle-fill text-success fs-2 mb-2 d-block"></i>
+        <p class="mb-3 fw-bold">OpÃ©ration terminÃ©e avec succÃ¨s !</p>
+        <button pButton class="p-button-outlined p-button-primary rounded-pill px-4" (click)="resetChat()">
+          Nouvelle crÃ©ation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suggested Choices -->
+  <div class="d-flex flex-wrap gap-2 mb-2" *ngIf="suggestedChoices.length > 0 && !loading">
+    <button *ngFor="let choice of suggestedChoices" 
+            pButton
+            class="p-button-sm p-button-outlined p-button-secondary rounded-pill px-3 py-1 shadow-sm choice-chip"
+            (click)="selectChoice(choice)">
+      {{choice}}
+    </button>
+  </div>
+  <!-- Input -->
+  <div class="chat-input-row d-flex gap-2">
+    <input pInputText
+      type="text"
+      class="form-control rounded-pill border shadow-sm px-4"
+      [(ngModel)]="userInput"
+      (keyup.enter)="sendMessage()"
+      placeholder="Entrez votre rÃ©ponse ici..."
+      [disabled]="loading || isComplete">
+    <button
+      pButton
+      class="p-button-primary rounded-pill px-4 shadow-sm d-flex align-items-center gap-2"
+      (click)="sendMessage()"
+      [disabled]="loading || isComplete || !userInput.trim()">
+      <i class="bi bi-send-fill"></i>
+      <span class="d-none d-sm-inline">Envoyer</span>
+    </button>
+  </div>
+</div>
+
+

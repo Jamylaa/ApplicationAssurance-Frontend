@@ -1,0 +1,10 @@
+.admin-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* The navbar is fixed-positioned, so add top padding to the content area */
+.main-content {
+  padding-top: 70px;
+}

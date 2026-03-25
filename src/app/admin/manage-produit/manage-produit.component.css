@@ -1,0 +1,23 @@
+.wide-modal {
+  max-width: 700px;
+}
+
+.multi-select {
+  height: 120px;
+  background-color: #f8fafc;
+}
+
+.help-text {
+  color: #64748b;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.search-input-300 {
+  max-width: 300px;
+}
+
+.sortable-col {
+  cursor: pointer;
+}

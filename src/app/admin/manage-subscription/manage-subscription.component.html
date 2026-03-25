@@ -1,0 +1,210 @@
+<div class="container-fluid py-4">
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="h3 mb-0 fw-bold"> Gestion des Souscriptions </h2>
+      <p class="text-muted small mb-0"> Validez, annulez ou suivez les contrats des clients. </p>
+    </div>
+    <div class="col-auto">
+      <button pButton class="p-button-primary d-flex align-items-center shadow-sm" (click)="activeStep = 1">
+        <i class="bi bi-file-earmark-plus me-2"></i> Créer une souscription
+      </button>
+    </div>
+  </div>
+
+  <app-breadcrumb [items]="[{ label: 'Souscriptions', link: '/admin/subscriptions' }]" />
+
+  <div *ngIf="checkedToast" class="toast show position-fixed bottom-0 end-0 m-4 border-0 bg-primary text-white">
+    <div class="toast-body">{{ checkedToast }}</div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+      <h5>Étape {{ activeStep }} / 4</h5>
+      <div class="progress mb-3" style="height: 8px;">
+        <div class="progress-bar" role="progressbar" [style.width]="(activeStep/4*100)+'%'" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+
+      <form [formGroup]="souscriptionForm" *ngIf="activeStep <= 4">
+        <div *ngIf="activeStep === 1" formGroupName="client">
+          <h6>1. Coordonnées Client</h6>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="form-floating mb-2">
+                <input pInputText class="form-control" formControlName="nom" placeholder="Nom">
+                <label>Nom</label>
+              </div>
+              <div class="form-floating mb-2">
+                <input pInputText class="form-control" formControlName="prenom" placeholder="Prénom">
+                <label>Prénom</label>
+              </div>
+              <div class="form-floating mb-2">
+                <input pInputText class="form-control" formControlName="email" placeholder="Email">
+                <label>Email</label>
+              </div>
+              <div class="form-floating mb-2">
+                <input pInputText class="form-control" formControlName="telephone" placeholder="Téléphone">
+                <label>Téléphone</label>
+              </div>
+              <div class="form-floating mb-2">
+                <input pInputText class="form-control" formControlName="adresse" placeholder="Adresse">
+                <label>Adresse</label>
+              </div>
+              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="codePostal" placeholder="Code postal"><label>Code postal</label></div>
+              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="ville" placeholder="Ville"><label>Ville</label></div>
+              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="pays" placeholder="Pays"><label>Pays</label></div>
+              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="dateNaissance" placeholder="Date de naissance" type="date"><label>Date de naissance</label></div>
+              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="numeroCIN" placeholder="CIN"><label>CIN</label></div>
+              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="numeroPermis" placeholder="Permis"><label>Permis</label></div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="activeStep === 2" formGroupName="produit">
+          <h6>2. Choix du Produit</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="produitType" class="form-label small fw-bold text-uppercase">Type du produit</label>
+              <p-dropdown
+                id="produitType"
+                [options]="produitTypes"
+                formControlName="type"
+                placeholder="Type du produit"
+                styleClass="w-full"
+              ></p-dropdown>
+            </div>
+            <div class="col-md-8 mb-3">
+              <label for="selectedProduit" class="form-label small fw-bold text-uppercase">Produit</label>
+              <p-dropdown
+                id="selectedProduit"
+                [options]="getProductsByType()"
+                formControlName="idProduit"
+                optionLabel="nomProduit"
+                optionValue="idProduit"
+                placeholder="Sélectionner un produit"
+                styleClass="w-full"
+              ></p-dropdown>
+            </div>
+            <div class="col-md-6 mb-3 form-floating">
+              <input pInputText class="form-control" type="number" formControlName="primePersonnalisee" min="0" placeholder="Prime personnalisée">
+              <label>Prime personnalisée</label>
+            </div>
+            <div class="col-md-6 mb-3 form-floating">
+              <textarea pInputTextarea class="form-control" formControlName="optionsSupplementaires" placeholder="Options override"></textarea>
+              <label>Options supplémentaires</label>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="activeStep === 3" formGroupName="contrat">
+          <h6>3. Paramètres du contrat</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3 form-floating"><input pInputText class="form-control" type="date" formControlName="dateDebut" placeholder="Date de début"><label>Date de début</label></div>
+            <div class="col-md-4 mb-3 form-floating"><input pInputText class="form-control" type="number" formControlName="dureeMois" min="1" placeholder="Durée (mois)"><label>Durée (mois)</label></div>
+            <div class="col-md-4 mb-3 form-floating"><input pInputText class="form-control" type="number" formControlName="primePersonnalisee" min="0" placeholder="Prime personnalisée"><label>Prime personnalisée</label></div>
+            <div class="col-12 mb-3 form-floating"><textarea pInputTextarea class="form-control" formControlName="optionsSupplementaires" placeholder="Options supplémentaires"></textarea><label>Options supplémentaires</label></div>
+          </div>
+        </div>
+
+        <div *ngIf="activeStep === 4">
+          <h6>4. Récapitulatif et validation</h6>
+          <ul class="list-group mb-3">
+            <li class="list-group-item">Client: {{ souscriptionForm.value.client.nom }} {{ souscriptionForm.value.client.prenom }}</li>
+            <li class="list-group-item">Email: {{ souscriptionForm.value.client.email }}</li>
+            <li class="list-group-item">Produit ID: {{ souscriptionForm.value.produit.idProduit }}</li>
+            <li class="list-group-item">Type produit: {{ souscriptionForm.value.produit.type }}</li>
+            <li class="list-group-item">Date début: {{ souscriptionForm.value.contrat.dateDebut }}</li>
+            <li class="list-group-item">Durée: {{ souscriptionForm.value.contrat.dureeMois }} mois</li>
+            <li class="list-group-item">Prime personnalisée: {{ souscriptionForm.value.contrat.primePersonnalisee }} DT</li>
+            <li class="list-group-item">Option: {{ souscriptionForm.value.contrat.optionsSupplementaires }}</li>
+          </ul>
+          <button pButton class="p-button-primary" type="button" (click)="submitSubscription()">Valider la souscription</button>
+        </div>
+
+        <div class="mt-3">
+          <button pButton class="p-button-outlined p-button-secondary me-2" type="button" (click)="prevStep()" [disabled]="activeStep <= 1">Précédent</button>
+          <button pButton class="p-button-success" type="button" (click)="nextStep()" [disabled]="activeStep >= 4">Suivant</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="input-group input-group-sm rounded-pill border overflow-hidden">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input
+          pInputText
+          type="text"
+          class="form-control border-0 shadow-none"
+          placeholder="Rechercher (client / pack / statut)"
+          [(ngModel)]="searchText"
+          (ngModelChange)="filterSubscriptions()"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border" role="status"></div>
+  </div>
+
+  <div *ngIf="!isLoading && error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!isLoading && !error">
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light text-uppercase small fw-bold">
+            <tr>
+              <th class="px-4 py-3">Contrat</th>
+              <th class="py-3">Client</th>
+              <th class="py-3">Pack</th>
+              <th class="py-3 text-center">Statut</th>
+              <th class="py-3 text-center">Début</th>
+              <th class="py-3 text-center">Fin</th>
+              <th class="px-4 py-3 text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sub of filteredSubscriptions">
+              <td class="px-4">{{ sub.idContrat }}</td>
+              <td>{{ sub.client?.nom || sub.clientId || '-' }}</td>
+              <td>{{ sub.produit?.nomProduit || sub.idProduit || '-' }}</td>
+              <td class="text-center">
+                <span class="badge" [ngClass]="{
+                  'bg-success': sub.statut === 'EN_COURS',
+                  'bg-warning text-dark': sub.statut === 'EN_ATTENTE',
+                  'bg-secondary': sub.statut === 'TERMINE',
+                  'bg-danger': sub.statut === 'ANNULÉ'
+                }">
+                  {{ sub.statut }}
+                </span>
+              </td>
+              <td class="text-center">{{ sub.dateDebut | date:'dd/MM/yyyy' }}</td>
+              <td class="text-center">{{ sub.dateFin ? (sub.dateFin | date:'dd/MM/yyyy') : '-' }}</td>
+              <td class="px-4 text-end">
+                <div class="rounded-pill overflow-hidden shadow-sm border d-inline-flex">
+                  <button pButton class="p-button-sm p-button-text p-button-secondary border-0 py-2 px-3" (click)="setStatus(sub, 'EN_COURS')" title="Marquer en cours">
+                    <i class="bi bi-play-fill"></i>
+                  </button>
+                  <button pButton class="p-button-sm p-button-text p-button-secondary border-0 py-2 px-3" (click)="setStatus(sub, 'TERMINE')" title="Marquer terminé">
+                    <i class="bi bi-check2"></i>
+                  </button>
+                  <button pButton class="p-button-sm p-button-text p-button-secondary border-0 py-2 px-3" (click)="setStatus(sub, 'ANNULÉ')" title="Annuler">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredSubscriptions.length === 0">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
+                Aucune souscription trouvée.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
