@@ -6,5 +6,5 @@
 
 /* The navbar is fixed-positioned, so add top padding to the content area */
 .main-content {
-  padding-top: 70px;
+  padding-top: var(--navbar-height);
 }

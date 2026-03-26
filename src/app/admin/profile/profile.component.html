@@ -7,16 +7,13 @@
           <dl class="row">
             <dt class="col-sm-4 text-muted">Nom</dt>
             <dd class="col-sm-8">{{ user?.userName || '—' }}</dd>
-
             <dt class="col-sm-4 text-muted">Email</dt>
             <dd class="col-sm-8">{{ user?.email || '—' }}</dd>
-
             <dt class="col-sm-4 text-muted">Rôle</dt>
             <dd class="col-sm-8">{{ role || '—' }}</dd>
           </dl>
         </div>
       </div>
-
       <div class="mt-4">
         <button pButton class="p-button-danger" (click)="logout()">Se déconnecter</button>
       </div>

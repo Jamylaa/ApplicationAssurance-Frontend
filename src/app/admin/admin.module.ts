@@ -21,22 +21,7 @@ import { NavbarComponent } from './layout/navbar/navbar.component';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { BreadcrumbComponent } from '../shared/components/breadcrumb/breadcrumb.component';
 import { UnifiedChatbotComponent } from './unified-chatbot/unified-chatbot.component';
-
-// PrimeNG Modules
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
-import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
-import { TableModule } from 'primeng/table';
-import { BadgeModule } from 'primeng/badge';
-import { ToastModule } from 'primeng/toast';
-import { CardModule } from 'primeng/card';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { MessageModule } from 'primeng/message';
-import { DialogModule } from 'primeng/dialog';
-import { InputSwitchModule } from 'primeng/inputswitch';
+import { PrimeNgModule } from '../shared/primeng.module';
 
 @NgModule({
   declarations: [
@@ -67,21 +52,7 @@ import { InputSwitchModule } from 'primeng/inputswitch';
     FormsModule,
     ReactiveFormsModule,
     AdminRoutingModule,
-    // PrimeNG
-    InputTextModule,
-    PasswordModule,
-    ButtonModule,
-    DividerModule,
-    DropdownModule,
-    InputSwitchModule,
-    TableModule,
-    BadgeModule,
-    ToastModule,
-    CardModule,
-    DialogModule,
-    MultiSelectModule,
-    InputTextareaModule,
-    MessageModule,
+    PrimeNgModule,
     BreadcrumbComponent
   ]
 })

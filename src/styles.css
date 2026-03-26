@@ -1,13 +1,43 @@
 :root {
   --sidebar-width: 250px;
-  --navbar-height: 70px; /* Ensure content is pushed below fixed navbar */
-  --primary-color: #0d6efd;
-  --bg-light: #f8f9fa;
+  --navbar-height: 64px;
+
+  /* App tokens (based on PrimeNG theme variables) */
+  --app-bg: var(--surface-b);
+  --app-surface: var(--surface-a);
+  --app-surface-hover: var(--surface-c);
+  --app-border: var(--surface-d);
+  --app-text: var(--text-color);
+  --app-text-muted: var(--text-color-secondary);
+
+  /* Sidebar tokens */
+  --sidebar-bg: var(--surface-a);
+  --sidebar-border: var(--surface-d);
+  --sidebar-surface: var(--surface-c);
+  --sidebar-hover: var(--surface-c);
+  --sidebar-active: var(--primary-50);
+  --sidebar-text: var(--text-color);
+  --sidebar-text-muted: var(--text-color-secondary);
+}
+
+:root[data-bs-theme='dark'] {
+  color-scheme: dark;
+
+  --sidebar-bg: #0f172a;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-surface: rgba(255, 255, 255, 0.03);
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-active: rgba(59, 130, 246, 0.18);
+  --sidebar-text: rgba(255, 255, 255, 0.92);
+  --sidebar-text-muted: rgba(255, 255, 255, 0.74);
 }
 
 body {
-  background-color: var(--bg-light);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  font-family: var(--font-family, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .main-content {
@@ -15,10 +45,24 @@ body {
   padding-top: var(--navbar-height);
   min-height: 100vh;
   transition: margin-left 0.3s ease;
+  background: var(--app-bg);
 }
 
 @media (max-width: 991.98px) {
   .main-content {
     margin-left: 0;
   }
+}
+
+/* Bootstrap utility fixes for dark mode (avoid "white blocks") */
+:root[data-bs-theme='dark'] .bg-white {
+  background-color: var(--app-surface) !important;
+}
+
+:root[data-bs-theme='dark'] .text-dark {
+  color: var(--app-text) !important;
+}
+
+:root[data-bs-theme='dark'] .bg-light {
+  background-color: var(--app-surface-hover) !important;
 }

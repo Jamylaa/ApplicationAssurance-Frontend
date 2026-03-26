@@ -4,7 +4,6 @@
             <h3>Assistant de Recommandation</h3>
             <span class="status">En ligne</span>
         </div>
-        
         <!-- Barre de progression -->
         <div class="progress-container" *ngIf="progress > 0 && !isComplete">
             <div class="progress-bar">
@@ -71,8 +70,7 @@
                     <span *ngIf="!loading">Envoyer</span>
                     <span *ngIf="loading">...</span>
                 </button>
-            </div>
-            
+            </div>  
             <!-- Actions supplémentaires -->
             <div class="action-buttons" *ngIf="isComplete || hasCollectedData">
                 <button class="reset-btn" (click)="resetConversation()">

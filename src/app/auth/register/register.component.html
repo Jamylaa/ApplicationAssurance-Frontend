@@ -16,7 +16,6 @@
                     Lettres, chiffres et traits d'union (-) uniquement.
                 </small>
             </div>
-
             <div class="field flex flex-column gap-2 mb-3">
                 <label for="email" class="block text-900 font-medium">Email</label>
                 <div class="p-input-icon-left">
@@ -24,7 +23,6 @@
                     <input pInputText type="email" id="email" formControlName="email" placeholder="votre@email.com" class="w-full" />
                 </div>
             </div>
-
             <div class="field flex flex-column gap-2 mb-3">
                 <label for="phone" class="block text-900 font-medium">Téléphone</label>
                 <div class="p-input-icon-left">
@@ -32,7 +30,6 @@
                     <input pInputText type="number" id="phone" formControlName="phone" placeholder="Numéro de téléphone" class="w-full" />
                 </div>
             </div>
-
             <div class="field flex flex-column gap-2 mb-4">
                 <label for="password" class="block text-900 font-medium">Mot de passe</label>
                 <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="true" 
@@ -42,14 +39,11 @@
                     Le mot de passe doit contenir au moins 7 caractères.
                 </small>
             </div>
-
             <div class="error-msg mb-3" *ngIf="error">
                 <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
             </div>
-
             <button pButton type="submit" label="S'inscrire" icon="pi pi-user-plus" [disabled]="registerForm.invalid" class="w-full p-3 font-bold"></button>
         </form>
-
         <p-divider align="center" styleClass="my-4">
             <span class="text-600 font-medium">OU</span>
         </p-divider>

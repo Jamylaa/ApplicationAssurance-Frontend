@@ -3,7 +3,7 @@
   <div class="row mb-4 align-items-center">
     <div class="col">
       <h2 class="h3 mb-0 fw-bold">Gestion des Produits</h2>
-      <p class="text-muted small mb-0">CrÃ©ez et configurez vos offres de produits d'assurance.</p>
+      <p class="text-muted small mb-0">Créez et configurez vos offres de produits d'assurance.</p>
     </div>
     <div class="col-auto">
       <button pButton class="p-button-primary d-flex align-items-center shadow-sm" *ngIf="!showForm" (click)="resetForm(); showForm = true">
@@ -15,7 +15,6 @@
     </div>
   </div>
   <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
-
   <!-- Inline Form -->
   <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden animate__animated animate__fadeInDown" *ngIf="showForm">
     <div class="card-header bg-light border-0 py-3 px-4">
@@ -32,40 +31,36 @@
             <label for="prixBase" class="form-label small fw-bold text-uppercase">Prix de Base (DT)</label>
             <input id="prixBase" type="number" pInputText class="w-full" formControlName="prixBase" placeholder="0">
           </div>
-        </div>
-        
+        </div>  
         <div class="mb-3 flex flex-column gap-2">
           <label for="description" class="form-label small fw-bold text-uppercase">Description</label>
-          <textarea id="description" pInputTextarea [rows]="3" class="w-full" formControlName="description" placeholder="DÃ©tails de l'offre..."></textarea>
+          <textarea id="description" pInputTextarea [rows]="3" class="w-full" formControlName="description" placeholder="Détails de l'offre..."></textarea>
         </div>
-
         <div class="row">
           <div class="col-md-6 mb-3 flex flex-column gap-2">
-            <label for="ageMin" class="form-label small fw-bold text-uppercase">Ã‚ge Minimum</label>
+            <label for="ageMin" class="form-label small fw-bold text-uppercase">Âge Minimum</label>
             <input id="ageMin" type="number" pInputText class="w-full" formControlName="ageMin" placeholder="0">
           </div>
           <div class="col-md-6 mb-3 flex flex-column gap-2">
-            <label for="ageMax" class="form-label small fw-bold text-uppercase">Ã‚ge Maximum</label>
+            <label for="ageMax" class="form-label small fw-bold text-uppercase">Âge Maximum</label>
             <input id="ageMax" type="number" pInputText class="w-full" formControlName="ageMax" placeholder="100">
           </div>
         </div>
-
         <div class="mb-3 flex flex-column gap-2">
-          <label for="garantiesIds" class="form-label small fw-bold text-uppercase">Garanties AssociÃ©es</label>
+          <label for="garantiesIds" class="form-label small fw-bold text-uppercase">Garanties Associées</label>
           <p-multiSelect [options]="garanties" formControlName="garantiesIds" optionLabel="nomGarantie" optionValue="idGarantie" 
-                         placeholder="SÃ©lectionner des garanties" styleClass="w-full" display="chip"></p-multiSelect>
+                         placeholder="Sélectionner des garanties" styleClass="w-full" display="chip"></p-multiSelect>
         </div>
-
         <div class="grid mt-4">
           <div class="col-12 md:col-6 mb-3">
             <div class="flex align-items-center justify-content-between bg-light p-3 border-round shadow-1">
-              <label class="small fw-bold" for="chronicSwitch">Maladie chronique autorisÃ©e</label>
+              <label class="small fw-bold" for="chronicSwitch">Maladie chronique autorisée</label>
               <p-inputSwitch id="chronicSwitch" formControlName="maladieChroniqueAutorisee"></p-inputSwitch>
             </div>
           </div>
           <div class="col-12 md:col-6 mb-3">
             <div class="flex align-items-center justify-content-between bg-light p-3 border-round shadow-1">
-              <label class="small fw-bold" for="diabetiqueSwitch">DiabÃ©tique autorisÃ©</label>
+              <label class="small fw-bold" for="diabetiqueSwitch">Diabétique autorisée</label>
               <p-inputSwitch id="diabetiqueSwitch" formControlName="diabetiqueAutorise"></p-inputSwitch>
             </div>
           </div>
@@ -81,7 +76,6 @@
       </div>
     </form>
   </div>
-
   <!-- Search & List Card -->
   <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
     <div class="card-header bg-white border-0 py-3 px-4 d-flex align-items-center justify-content-between">
@@ -135,7 +129,7 @@
                 </div>
               </td>
               <td class="text-center">
-                <span class="badge rounded-pill" [ngClass]="p.actif ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger'">
+                <span class="badge rounded-pill" [ngClass]="p.actif ?'bg-success-subtle text-success border border-success':'bg-danger-subtle text-danger border border-danger'">
                   {{ p.actif ? 'Actif' : 'Inactif' }}
                   {{ p.dateCreation | date:'dd/MM/yyyy HH:mm' }}
                 </span>

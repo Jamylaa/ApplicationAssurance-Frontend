@@ -1,7 +1,7 @@
 export const API_CONFIG = {
   user: 'http://localhost:9092/api',
   admin : 'http://localhost:9092/api/admins',
-  client: 'http://localhost:9092/api/clients',
+  client: 'http://localhost:8080/api/clients',
   auth:   'http://localhost:9092/api/auth',
   pack: 'http://localhost:9093/api/packs',
   garante: 'http://localhost:9093/api/garanties',

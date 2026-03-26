@@ -5,83 +5,13 @@
         <i class="bi bi-shield-check text-white fs-4"></i>
       </div>
       <div>
-        <h5 class="mb-0 fw-bold text-white tracking-wider"> AssurAI </h5>
-        <small class="text-white-50"> Admin Portal </small>
+        <h5 class="mb-0 fw-bold text-white tracking-wider">Assurance</h5>
+        <small class="text-white-50">Admin Portal</small>
       </div>
     </div>
   </div>
 
   <div class="sidebar-content px-3 pb-4">
-    <!-- Section: Main -->
-    <div class="nav-section-label">Principal</div>
-    <ul class="nav flex-column sidebar-nav mb-4">
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active">
-          <i class="bi bi-speedometer2"></i>
-          <span>Dashboard</span>
-        </a>
-      </li>
-    </ul>
-
-    <!-- Section: Entities -->
-    <div class="nav-section-label">Gestion des Assurances</div>
-    <ul class="nav flex-column sidebar-nav mb-4">
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/admin/clients" routerLinkActive="active">
-          <i class="bi bi-people"></i>
-          <span>Clients</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/admin/packs" routerLinkActive="active">
-          <i class="bi bi-collection"></i>
-          <span>Packs</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/admin/produits" routerLinkActive="active">
-          <i class="bi bi-box-seam"></i>
-          <span>Produits</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/admin/garanties" routerLinkActive="active">
-          <i class="bi bi-shield-lock"></i>
-          <span>Garanties</span>
-        </a>
-      </li>
-    </ul>
-
-    <!-- Section: Operations -->
-    <div class="nav-section-label">Opérations</div>
-    <ul class="nav flex-column sidebar-nav mb-4">
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/admin/subscriptions" routerLinkActive="active">
-          <i class="bi bi-journal-check"></i>
-          <span>Souscriptions</span>
-        </a>
-      </li>
-    </ul>
-
-    <hr class="my-3 opacity-20" />
-
-    <!-- Section: AI Tools -->
-    <div class="nav-section-label">Intelligence Artificielle</div>
-    <ul class="nav flex-column sidebar-nav">
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/admin/chat" routerLinkActive="active">
-          <i class="bi bi-magic"></i>
-          <span>Assistant Création</span>
-          <span class="badge text-bg-primary ms-auto">IA</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/admin/recommendation-chat" routerLinkActive="active">
-          <i class="bi bi-chat-heart"></i>
-          <span>Recommandation</span>
-          <span class="badge text-bg-info ms-auto">Smart</span>
-        </a>
-      </li>
-    </ul>
+    <p-panelMenu [model]="menuItems" [multiple]="true" styleClass="sidebar-panelmenu"></p-panelMenu>
   </div>
 </nav>

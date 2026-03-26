@@ -143,13 +143,10 @@
       </div>
     </div>
   </div>
-
   <div *ngIf="isLoading" class="text-center py-5">
     <div class="spinner-border" role="status"></div>
   </div>
-
   <div *ngIf="!isLoading && error" class="alert alert-danger">{{ error }}</div>
-
   <div *ngIf="!isLoading && !error">
     <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
       <div class="table-responsive">

@@ -1,7 +1,7 @@
 ﻿<div class="container py-5">
   <div class="text-center mb-5">
-    <h1 class="display-5 fw-bold text-primary">Souscription Ã  un Contrat</h1>
-    <p class="lead text-muted">Choisissez la protection qui vous convient le mieux en quelques Ã©tapes.</p>
+    <h1 class="display-5 fw-bold text-primary">Souscription à un Contrat</h1>
+    <p class="lead text-muted">Choisissez la protection qui vous convient le mieux en quelques étapes.</p>
   </div>
   <!-- Stepper -->
   <div class="d-flex justify-content-center mb-5">
@@ -45,7 +45,7 @@
           </div>
           <div class="card-footer border-0 bg-white p-4 pt-0">
             <button class="btn btn-outline-primary w-100 rounded-pill fw-bold py-2" (click)="selectPack(pack)">
-              SÃ©lectionner ce pack
+              Sélectionner ce pack
             </button>
           </div>
         </div>
@@ -56,7 +56,7 @@
   <div *ngIf="step === 2" class="animate-fade-in text-center mx-auto step-2-max-600">
     <div class="card border-0 shadow-lg p-5">
       <i class="bi bi-info-circle display-1 text-primary mb-4 opacity-50"></i>
-      <h3 class="fw-bold mb-3">RÃ©capitulatif de votre choix</h3>
+      <h3 class="fw-bold mb-3">Récapitulatif de votre choix</h3>
       <p class="text-muted mb-4">Vous avez choisi le pack <strong>{{ selectedPack?.nomPack }}</strong>. Souhaitez-vous confirmer votre souscription ?</p>
       
       <div class="d-flex gap-3 justify-content-center mt-4">
@@ -71,8 +71,8 @@
       <div class="success-icon mb-4">
         <i class="bi bi-check-circle-fill text-success display-1 animate-bounce"></i>
       </div>
-      <h2 class="fw-bold text-dark">FÃ©licitations !</h2>
-      <p class="lead text-muted mb-4">Votre demande de souscription pour le <strong>{{ selectedPack?.nomPack }}</strong> a Ã©tÃ© enregistrÃ©e avec succÃ¨s.</p>
+      <h2 class="fw-bold text-dark">Félicitations !</h2>
+      <p class="lead text-muted mb-4">Votre demande de souscription pour le <strong>{{ selectedPack?.nomPack }}</strong> a été enregistrée avec succès.</p>
       <button class="btn btn-primary px-5 rounded-pill" routerLink="/client">Retour au tableau de bord</button>
     </div>
   </div>

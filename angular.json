@@ -22,13 +22,22 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "theme.css",
+                "input": "node_modules/primeng/resources/themes/lara-light-blue",
+                "output": "assets/primeng-themes/lara-light-blue"
+              },
+              {
+                "glob": "theme.css",
+                "input": "node_modules/primeng/resources/themes/lara-dark-blue",
+                "output": "assets/primeng-themes/lara-dark-blue"
+              }
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "src/styles.css",
-              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
               "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeicons/primeicons.css"
             ],

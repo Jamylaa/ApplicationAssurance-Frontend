@@ -5,7 +5,7 @@ import { ClientRoutingModule } from './client-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ChatbotComponent } from './chatbot/chatbot.component';
 import { SubscriptionComponent } from './subscription/subscription.component';
-import { InputTextModule } from 'primeng/inputtext';
+import { PrimeNgModule } from '../shared/primeng.module';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -16,7 +16,7 @@ import { InputTextModule } from 'primeng/inputtext';
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    InputTextModule,
+    PrimeNgModule,
     ClientRoutingModule
   ]
 })

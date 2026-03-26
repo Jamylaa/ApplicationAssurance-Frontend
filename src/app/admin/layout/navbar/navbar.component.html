@@ -1,21 +1,91 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top header-navbar shadow-sm">
+<nav class="navbar navbar-expand-lg border-bottom fixed-top header-navbar shadow-sm">
   <div class="container-fluid px-4">
-    <button pButton class="p-button-text d-lg-none" type="button" aria-label="Ouvrir le menu" title="Ouvrir le menu">
-      <i class="pi pi-bars fs-4"></i>
+    <!-- Toggle mobile -->
+    <button pButton 
+      class="p-button-text d-lg-none"
+      type="button"
+      aria-label="Ouvrir le menu"  >
+      <i class="pi pi-bars fs-4" aria-hidden="true"></i>
+      <span class="visually-hidden">Ouvrir le menu</span>
     </button>
-    <div class="navbar-content w-full flex align-items-center justify-content-between ms-auto">
-      <div class="navbar-title opacity-0 lg:opacity-100 font-bold text-900 ml-4">Tableau de Bord</div>
-      <div class="dropdown">
-        <button pButton class="p-button-text dropdown-toggle d-flex align-items-center rounded-pill px-3 py-2 border shadow-none bg-white hover:bg-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          <div class="avatar-circle bg-primary-subtle text-primary rounded-circle me-2 flex align-items-center justify-content-center font-bold" style="width: 32px; height: 32px;">A</div>
-          <span class="font-medium text-700">Admin</span>
+    <div class="navbar-content w-100 d-flex align-items-center justify-content-between ms-auto">
+      <!-- Title -->
+      <div class="navbar-title opacity-0 opacity-lg-100 fw-bold text-dark ms-4">
+        Tableau de Bord
+      </div>
+
+      <!-- Right side -->
+      <div class="d-flex align-items-center gap-2">
+
+        <!-- Theme toggle -->
+        <button
+          pButton
+          class="p-button-text theme-toggle-btn"
+          type="button"
+          (click)="toggleTheme()"
+          [attr.aria-label]="isDark ? 'Activer le mode clair' : 'Activer le mode sombre'"
+        >
+          <i 
+            class="bi" 
+            [ngClass]="isDark ? 'bi-sun-fill' : 'bi-moon-stars-fill'"
+            aria-hidden="true"
+          ></i>
+
+          <span class="visually-hidden">
+            {{ isDark ? 'Activer le mode clair' : 'Activer le mode sombre' }}
+          </span>
         </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 border-round-xl mt-2 py-2">
-          <li><a class="dropdown-item py-2 px-3 flex align-items-center gap-2" routerLink="/admin/profile"><i class="pi pi-user text-600"></i> <span>Profile</span></a></li>
-          <li><a class="dropdown-item py-2 px-3 flex align-items-center gap-2" routerLink="/admin/settings"><i class="pi pi-cog text-600"></i> <span>Settings</span></a></li>
-          <li><hr class="dropdown-divider opacity-10"></li>
-          <li><a class="dropdown-item py-2 px-3 flex align-items-center gap-2 text-danger" href="#"><i class="pi pi-sign-out"></i> <span>Logout</span></a></li>
-        </ul>
+
+        <!-- User dropdown -->
+        <div class="dropdown">
+
+          <button 
+            pButton 
+            class="p-button-text dropdown-toggle d-flex align-items-center rounded-pill px-3 py-2 border shadow-none user-menu-btn"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            aria-label="Menu utilisateur"
+          >
+            <div 
+              class="avatar-circle bg-primary-subtle text-primary rounded-circle me-2 d-flex align-items-center justify-content-center fw-bold"
+              style="width: 32px; height: 32px;"
+              aria-hidden="true"
+            >
+              A
+            </div>
+
+            <span class="fw-medium text-secondary">Admin</span>
+          </button>
+          <!-- Dropdown menu -->
+          <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 py-2">
+            <li>
+              <a class="dropdown-item d-flex align-items-center gap-2 py-2 px-3"
+                 routerLink="/admin/profile">
+                <i class="pi pi-user text-muted" aria-hidden="true"></i>
+                <span>Profil</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center gap-2 py-2 px-3"
+                 routerLink="/admin/settings">
+                <i class="pi pi-cog text-muted" aria-hidden="true"></i>
+                <span>Paramètres</span>
+              </a>
+            </li>
+            <li><hr class="dropdown-divider opacity-25"></li>
+             <!--<li>
+              <button 
+                class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 text-danger"
+                (click)="Logout()"
+                aria-label="Se déconnecter"
+              >
+                <i class="pi pi-sign-out" aria-hidden="true"></i>
+                <span>Déconnexion</span>
+              </button>
+            </li> > --->
+          </ul>
+        </div>
       </div>
     </div>
   </div>

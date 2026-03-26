@@ -21,7 +21,7 @@ export class ClientDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('id')?.trim();
     if (!id) {
       this.error = 'Identifiant du client manquant';
       this.isLoading = false;
@@ -38,8 +38,14 @@ export class ClientDetailComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error(err);
-        this.error = "Impossible de charger le client.";
+        console.error('Client fetch error:', err);
+        if (err.status === 404) {
+          this.error = 'Client non trouve.';
+        } else if (err.status === 500) {
+          this.error = 'Erreur serveur. Veuillez reessayer plus tard.';
+        } else {
+          this.error = `Erreur: ${err.message || 'Impossible de charger le client.'}`;
+        }
         this.isLoading = false;
       }
     });
@@ -62,7 +68,7 @@ export class ClientDetailComponent implements OnInit {
       next: () => this.router.navigate(['/admin/clients']),
       error: (err) => {
         console.error(err);
-        this.error = "Impossible de supprimer le client.";
+        this.error = 'Impossible de supprimer le client.';
       }
     });
   }

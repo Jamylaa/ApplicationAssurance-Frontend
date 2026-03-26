@@ -22,7 +22,7 @@ export class ValidationService {
       return of({ isValid: false, message: 'Le username ne peut pas depasser 30 caracteres' });
     }
 
-    const usernamePattern = /^[A-Za-zÀ-ÖØ-öø-ÿ]+(?:-[A-Za-zÀ-ÖØ-öø-ÿ]+)*$/;
+    const usernamePattern = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
     if (!usernamePattern.test(value)) {
       return of({
         isValid: false,
@@ -56,25 +56,25 @@ export class ValidationService {
       return of({ isValid: false, message: 'Le mot de passe doit contenir au moins un chiffre' });
     }
 
-    return this.clientService.validatePassword(value).pipe(
-      map((response) => ({ isValid: response.isValid, message: response.message || 'Mot de passe valide' })),
-      delay(250),
-      catchError((error) => of({ isValid: false, message: error?.message || 'Mot de passe invalide' }))
-    );
+    return of({ isValid: true, message: 'Mot de passe valide' }).pipe(delay(250));
   }
 
-  validateEmail(email: string): ValidationResult {
+  validateEmail(email: string): Observable<ValidationResult> {
     const value = String(email ?? '').trim();
     if (!value) {
-      return { isValid: false, message: 'L email ne peut pas etre vide' };
+      return of({ isValid: false, message: 'L email ne peut pas etre vide' });
     }
 
     const emailPattern = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     if (!emailPattern.test(value)) {
-      return { isValid: false, message: 'L email n a pas un format valide' };
+      return of({ isValid: false, message: 'L email n a pas un format valide' });
     }
 
-    return { isValid: true, message: 'Email valide' };
+    return this.clientService.validateEmail(value).pipe(
+      map((response) => ({ isValid: response.isValid, message: response.message || 'Email valide' })),
+      delay(250),
+      catchError((error) => of({ isValid: false, message: error?.message || 'Email invalide' }))
+    );
   }
 
   validatePhone(phone: number | string): ValidationResult {

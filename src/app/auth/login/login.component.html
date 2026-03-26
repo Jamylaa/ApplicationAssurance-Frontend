@@ -16,7 +16,6 @@
                     Nom d'utilisateur requis ou format invalide.
                 </small>
             </div>
-
             <div class="field flex flex-column gap-2 mb-4">
                 <label for="password" class="block text-900 font-medium"> Mot de passe </label>
                 <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false" 
@@ -25,11 +24,9 @@
                     Le mot de passe doit contenir au moins 7 caractères.
                 </small>
             </div>
-
             <div class="error-msg mb-3" *ngIf="error">
                 <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
             </div>
-
             <button pButton type="submit" label="Se connecter" icon="pi pi-sign-in" [disabled]="loginForm.invalid" class="w-full p-3 font-bold"></button>
         </form>
 

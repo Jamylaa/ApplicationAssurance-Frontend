@@ -6,8 +6,8 @@
   height: 100vh;
   z-index: 1000;
   overflow-y: auto;
-  background: #0f172a; /* Deep Navy */
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
@@ -15,7 +15,7 @@
 
 .sidebar-brand {
   padding: 2rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--sidebar-border);
 }
 
 .brand-icon {
@@ -23,59 +23,75 @@
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
-.nav-section-label {
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  padding: 1.5rem 0.75rem 0.75rem;
+.brand-icon i {
+  color: #ffffff !important;
 }
 
-.sidebar-nav {
-  gap: 0.25rem;
+.sidebar .text-white {
+  color: var(--sidebar-text) !important;
 }
 
-.sidebar-nav .nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.9rem;
-  font-weight: 500;
+.sidebar .text-white-50 {
+  color: var(--sidebar-text-muted) !important;
+}
+
+.sidebar-content {
+  flex: 1;
+}
+
+:host ::ng-deep .sidebar-panelmenu.p-panelmenu {
+  border: none;
+  background: transparent;
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-panelmenu-panel {
+  margin-bottom: 0.5rem;
+  border: none;
+  background: transparent;
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-panelmenu-header > a {
+  background: var(--sidebar-surface);
+  border: 1px solid var(--sidebar-border);
   border-radius: 0.75rem;
-  transition: all 0.2s ease;
-  text-decoration: none;
-}
-
-.sidebar-nav .nav-link i {
-  font-size: 1.1rem;
-  opacity: 0.8;
-  transition: transform 0.2s ease;
-}
-
-.sidebar-nav .nav-link:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-}
-
-.sidebar-nav .nav-link:hover i {
-  transform: scale(1.1);
-}
-
-.sidebar-nav .nav-link.active {
-  background: rgba(99, 102, 241, 0.1);
-  color: #818cf8; /* Light Indigo */
+  color: var(--sidebar-text);
   font-weight: 600;
+  transition: all 0.2s ease;
 }
 
-.sidebar-nav .nav-link.active i {
-  color: #818cf8;
-  opacity: 1;
+:host ::ng-deep .sidebar-panelmenu .p-panelmenu-header > a:hover {
+  background: var(--sidebar-active);
+  border-color: rgba(129, 140, 248, 0.45);
 }
 
-/* Custom Scrollbar */
+:host ::ng-deep .sidebar-panelmenu .p-panelmenu-content {
+  border: none;
+  background: transparent;
+  padding-top: 0.4rem;
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-menuitem-link {
+  border-radius: 0.7rem;
+  color: var(--sidebar-text-muted);
+  margin: 0.2rem 0;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-menuitem-link:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-menuitem-link-active {
+  background: var(--sidebar-active);
+  color: var(--primary-color);
+}
+
+:host ::ng-deep .sidebar-panelmenu .p-menuitem-icon,
+:host ::ng-deep .sidebar-panelmenu .p-panelmenu-icon {
+  color: inherit;
+}
+
 .sidebar::-webkit-scrollbar {
   width: 5px;
 }
@@ -85,7 +101,7 @@
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--sidebar-hover);
   border-radius: 10px;
 }
 

@@ -3,8 +3,8 @@
 }
 
 .header-card {
-  background: #fff;
-  border: 1px solid #d9e3f3;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 12px;
   padding: 14px;
   margin-bottom: 12px;
@@ -25,8 +25,8 @@
 }
 
 .selector-item {
-  border: 1px solid #d9e3f3;
-  background: #f8fbff;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-hover);
   border-radius: 10px;
   padding: 8px 10px;
   display: flex;
@@ -48,7 +48,7 @@
 .selector-name {
   font-size: 13px;
   font-weight: 600;
-  color: #17345f;
+  color: var(--app-text);
 }
 
 .session-list {
@@ -58,17 +58,17 @@
 }
 
 .session-chip {
-  border: 1px solid #ccdaef;
-  background: #fff;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
   border-radius: 999px;
   padding: 6px 10px;
   font-size: 12px;
-  color: #284d82;
+  color: var(--app-text);
 }
 
 .session-chip.active {
-  background: #eaf2ff;
-  border-color: #8cb2ea;
+  background: var(--primary-50);
+  border-color: var(--primary-200);
 }
 
 .delete-chip {
@@ -77,8 +77,8 @@
 }
 
 .chat-panel {
-  background: #fff;
-  border: 1px solid #d9e3f3;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 12px;
   padding: 12px;
   display: flex;
@@ -94,29 +94,29 @@
 
 .status-pill {
   border-radius: 999px;
-  background: #eaf2ff;
-  color: #1d4f8f;
+  background: var(--primary-50);
+  color: var(--primary-700);
   font-size: 12px;
   padding: 4px 10px;
   font-weight: 600;
 }
 
 .status-pill.complete {
-  background: #e7f9ef;
-  color: #1f7a4f;
+  background: var(--green-50);
+  color: var(--green-700);
 }
 
 .field-label {
   font-size: 12px;
-  color: #52698d;
+  color: var(--app-text-muted);
   flex: 1;
 }
 
 .chat-messages {
   height: 50vh;
   overflow-y: auto;
-  background: #f7faff;
-  border: 1px solid #dce8f8;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
   border-radius: 10px;
   padding: 10px;
 }
@@ -135,20 +135,20 @@
   padding: 8px 10px;
   border-radius: 10px;
   font-size: 14px;
-  background: #ffffff;
-  border: 1px solid #d7e4f8;
-  color: #11335d;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  color: var(--app-text);
 }
 
 .message-row.user .message-bubble {
-  background: #0d6efd;
-  color: #fff;
-  border-color: #0d6efd;
+  background: var(--primary-color);
+  color: var(--primary-color-text);
+  border-color: var(--primary-color);
 }
 
 .typing {
   font-size: 12px;
-  color: #5d7397;
+  color: var(--app-text-muted);
 }
 
 .input-row {
@@ -158,10 +158,9 @@
 }
 
 .empty-state {
-  background: #fff;
-  border: 1px dashed #c6d9f4;
+  background: var(--app-surface);
+  border: 1px dashed var(--app-border);
   border-radius: 12px;
   padding: 24px;
   text-align: center;
 }
-
