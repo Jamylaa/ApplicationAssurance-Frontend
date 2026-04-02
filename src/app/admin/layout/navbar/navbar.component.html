@@ -13,24 +13,20 @@
       <div class="navbar-title opacity-0 opacity-lg-100 fw-bold text-dark ms-4">
         Tableau de Bord
       </div>
-
       <!-- Right side -->
       <div class="d-flex align-items-center gap-2">
-
         <!-- Theme toggle -->
         <button
           pButton
           class="p-button-text theme-toggle-btn"
           type="button"
           (click)="toggleTheme()"
-          [attr.aria-label]="isDark ? 'Activer le mode clair' : 'Activer le mode sombre'"
-        >
+          [attr.aria-label]="isDark ? 'Activer le mode clair' : 'Activer le mode sombre'"  >
           <i 
             class="bi" 
             [ngClass]="isDark ? 'bi-sun-fill' : 'bi-moon-stars-fill'"
             aria-hidden="true"
           ></i>
-
           <span class="visually-hidden">
             {{ isDark ? 'Activer le mode clair' : 'Activer le mode sombre' }}
           </span>
@@ -38,7 +34,6 @@
 
         <!-- User dropdown -->
         <div class="dropdown">
-
           <button 
             pButton 
             class="p-button-text dropdown-toggle d-flex align-items-center rounded-pill px-3 py-2 border shadow-none user-menu-btn"

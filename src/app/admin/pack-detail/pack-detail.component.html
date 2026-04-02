@@ -34,13 +34,10 @@
         </dd>
         <dt class="col-sm-3">Produits (noms)</dt>
         <dd class="col-sm-9">{{ getProduitNames(pack.produitsIds || []) }}</dd>
-
         <dt class="col-sm-3">IDs Produits</dt>
         <dd class="col-sm-9">{{ pack.produitsIds.length ? pack.produitsIds.join(', ') : 'Aucun' }}</dd>
-
         <dt class="col-sm-3">Date de creation</dt>
         <dd class="col-sm-9">{{ pack.dateCreation ? (pack.dateCreation | date:'dd/MM/yyyy HH:mm') : '-' }}</dd>
-
         <dt class="col-sm-3">Statut</dt>
         <dd class="col-sm-9">
           <span class="badge" [ngClass]="pack.actif ? 'bg-success' : 'bg-danger'">

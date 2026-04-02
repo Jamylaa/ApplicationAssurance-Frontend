@@ -47,44 +47,33 @@ import { filter } from 'rxjs/operators';
 })
 export class BreadcrumbComponent implements OnInit, OnDestroy {
   @Input() items: { label: string; link?: string }[] = [];
-
   breadcrumbs: { label: string; link?: string }[] = [];
   private sub?: Subscription;
-
   constructor(private router: Router, private activatedRoute: ActivatedRoute) {}
-
   ngOnInit(): void {
     this.sub = this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => this.updateBreadcrumbs());
 
     // Initial render
-    this.updateBreadcrumbs();
-  }
-
+    this.updateBreadcrumbs(); }
   ngOnDestroy(): void {
-    this.sub?.unsubscribe();
-  }
-
+    this.sub?.unsubscribe();}
   private updateBreadcrumbs(): void {
     if (this.items?.length) {
       this.breadcrumbs = this.items;
       return;
     }
-
     const breadcrumbs: { label: string; link?: string }[] = [];
     let currentRoute: ActivatedRoute | null = this.activatedRoute.root;
     let url = '';
-
     while (currentRoute) {
       const children: ActivatedRoute[] = currentRoute.children;
       if (!children || children.length === 0) {
         break;
       }
-
       const child: ActivatedRoute = children[0];
       const routeConfig = child.routeConfig;
-
       if (routeConfig && routeConfig.path) {
         const routeURL = routeConfig.path;
         const routeDataLabel = (routeConfig.data as any)?.['breadcrumb'] as string | undefined;
@@ -104,9 +93,7 @@ export class BreadcrumbComponent implements OnInit, OnDestroy {
           }
         }
       }
-
-      currentRoute = child;
-    }
+      currentRoute = child; }
     this.breadcrumbs = breadcrumbs;
   }
 }

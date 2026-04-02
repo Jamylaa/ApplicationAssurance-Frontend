@@ -1,8 +1,12 @@
 .header-navbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
   margin-left: var(--sidebar-width);
-  height: 48px; /* ou 50px selon ton goût */
-  padding: 0 1rem; /* réduire aussi le padding horizontal */
-  z-index: 999;
+  height: var(--navbar-height);
+  padding: 0 1.5rem;
+  z-index: 1030;
   background: var(--app-surface) !important;
   border-bottom: 1px solid var(--app-border);
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);

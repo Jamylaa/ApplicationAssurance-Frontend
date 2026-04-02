@@ -1,7 +1,7 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 export class UserValidator {
-  static readonly USERNAME_REGEX = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
+  static readonly USERNAME_REGEX = /^[A-Za-z]+(?:-[A-Za-z]+)*$/;
   static readonly PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
   static readonly TUNISIAN_PHONE_REGEX = /^[2-9]\d{7}$/;
 

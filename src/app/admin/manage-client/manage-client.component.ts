@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, switchMap, takeUntil } from 'rxjs/operators';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { Client, ClientDTO } from '../../shared/models/client.model';
 import { ValidationService } from '../../shared/services/validation.service';
 import { ClientService, ValidationResult } from '../../shared/services/client.service';
@@ -16,22 +17,18 @@ import { UserValidator } from '../../shared/validators/user-validator';
 export class ManageClientComponent implements OnInit, OnDestroy {
   clientForm: FormGroup;
   clients: Client[] = [];
-  filteredClients: Client[] = [];
-  searchText = '';
-  selectedClientId: string | null = null;
-  pendingEditId: string | null = null;
-  successMsg = '';
-  errorMsg = '';
-  showForm = false;
   loading = false;
+  listLoading = false;
+  showForm = false;
+  selectedClientId: string | null = null;
 
   usernameValidation: ValidationResult = { isValid: true, message: '' };
   passwordValidation: ValidationResult = { isValid: true, message: '' };
   emailValidation: ValidationResult = { isValid: true, message: '' };
   phoneValidation: ValidationResult = { isValid: true, message: '' };
 
+  private initialEditValues: { userName: string; email: string } | null = null;
   private readonly destroy$ = new Subject<void>();
-  private readonly search$ = new Subject<string>();
 
   breadcrumbItems = [{ label: 'Clients', link: '/admin/clients' }];
 
@@ -40,14 +37,16 @@ export class ManageClientComponent implements OnInit, OnDestroy {
     private clientService: ClientService,
     private validationService: ValidationService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {
     this.clientForm = this.fb.group({
       userName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30), UserValidator.usernameFormat()]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6), UserValidator.passwordStrength()]],
       phone: ['', [Validators.required, UserValidator.tunisianPhone()]],
-      age: [25, [Validators.required, Validators.min(0)]],
+      age: [25, [Validators.required, Validators.min(0), Validators.max(150)]],
       sexe: ['M', Validators.required],
       profession: ['', Validators.required],
       situationFamiliale: ['CELIBATAIRE', Validators.required],
@@ -59,14 +58,6 @@ export class ManageClientComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const editId = params.get('editId');
-      if (editId) {
-        this.pendingEditId = editId;
-      }
-    });
-
-    this.setupSearch();
     this.setupRealTimeValidation();
     this.loadClients();
   }
@@ -77,26 +68,27 @@ export class ManageClientComponent implements OnInit, OnDestroy {
   }
 
   loadClients(): void {
+    this.listLoading = true;
     this.clientService.getAllClients().subscribe({
-      next: (res) => this.applyClientList(res, true),
+      next: (res) => {
+        this.clients = res;
+        this.listLoading = false;
+      },
       error: (err) => {
         console.error(err);
-        this.errorMsg = 'Erreur chargement clients';
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de charger les clients' });
+        this.listLoading = false;
       }
     });
   }
 
-  onSearchInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.searchText = target.value;
-    this.search$.next(this.searchText);
-  }
-
   updateClient(client: Client): void {
     this.selectedClientId = client.idUser ?? null;
+    this.initialEditValues = {
+      userName: String(client.userName ?? '').trim(),
+      email: String(client.email ?? '').trim().toLowerCase()
+    };
     this.showForm = true;
-    this.successMsg = '';
-    this.errorMsg = '';
 
     const passwordControl = this.clientForm.get('password');
     passwordControl?.setValidators([Validators.minLength(6), UserValidator.passwordStrength()]);
@@ -122,18 +114,17 @@ export class ManageClientComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (!this.clientForm.valid) {
-      this.errorMsg = 'Veuillez remplir correctement tous les champs obligatoires.';
       this.clientForm.markAllAsTouched();
       return;
     }
 
     if (!this.usernameValidation.isValid || !this.emailValidation.isValid || !this.phoneValidation.isValid) {
-      this.errorMsg = 'Veuillez corriger les erreurs de validation avant de soumettre.';
+      this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Veuillez corriger les erreurs de validation' });
       return;
     }
 
     if (!this.selectedClientId && !this.passwordValidation.isValid) {
-      this.errorMsg = 'Veuillez corriger le mot de passe avant de soumettre.';
+      this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Le mot de passe n\'est pas valide' });
       return;
     }
 
@@ -142,13 +133,7 @@ export class ManageClientComponent implements OnInit, OnDestroy {
 
     if (this.isUserNameTaken(userName)) {
       this.clientForm.get('userName')?.setErrors({ userNameTaken: true });
-      this.errorMsg = "Ce nom d'utilisateur existe deja.";
-      return;
-    }
-
-    if (this.isEmailTaken(email)) {
-      this.clientForm.get('email')?.setErrors({ emailTaken: true });
-      this.errorMsg = 'Cet email est deja utilise.';
+      this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Ce nom d\'utilisateur est déjà pris' });
       return;
     }
 
@@ -173,9 +158,6 @@ export class ManageClientComponent implements OnInit, OnDestroy {
     }
 
     this.loading = true;
-    this.errorMsg = '';
-    this.successMsg = '';
-
     const request$ = this.selectedClientId
       ? this.clientService.updateClient(this.selectedClientId, payload)
       : this.clientService.createClient(payload);
@@ -184,37 +166,45 @@ export class ManageClientComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
-          this.successMsg = this.selectedClientId ? 'Client modifie avec succes' : 'Client cree avec succes';
-          this.selectedClientId = null;
+          this.messageService.add({ 
+            severity: 'success', 
+            summary: 'Succès', 
+            detail: this.selectedClientId ? 'Client modifié' : 'Client créé' 
+          });
           this.showForm = false;
           this.resetForm();
-          this.refreshClients();
+          this.loadClients();
         },
         error: (err: any) => {
           console.error(err);
-          this.errorMsg = err?.message || 'Erreur operation client';
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Une erreur est survenue' });
         }
       });
   }
 
   deleteClient(id: string): void {
-    if (!confirm('Voulez-vous supprimer ce client ?')) return;
-
-    this.clientService.deleteClient(id).subscribe({
-      next: () => {
-        this.successMsg = 'Client supprime';
-        this.errorMsg = '';
-        this.refreshClients();
-      },
-      error: (err) => {
-        console.error('Erreur suppression:', err);
-        this.errorMsg = 'Erreur suppression';
+    this.confirmationService.confirm({
+      message: 'Voulez-vous vraiment supprimer ce client ?',
+      header: 'Confirmation de suppression',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.clientService.deleteClient(id).subscribe({
+          next: () => {
+            this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Client supprimé' });
+            this.loadClients();
+          },
+          error: (err) => {
+            console.error('Erreur suppression:', err);
+            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Suppression échouée' });
+          }
+        });
       }
     });
   }
 
   resetForm(): void {
     this.selectedClientId = null;
+    this.initialEditValues = null;
 
     const passwordControl = this.clientForm.get('password');
     passwordControl?.setValidators([Validators.required, Validators.minLength(6), UserValidator.passwordStrength()]);
@@ -241,80 +231,32 @@ export class ManageClientComponent implements OnInit, OnDestroy {
     this.phoneValidation = { isValid: true, message: '' };
   }
 
-  private refreshClients(): void {
-    const query = this.searchText.trim();
-    const request$ = query ? this.clientService.searchClients(query) : this.clientService.getAllClients();
-
-    request$.subscribe({
-      next: (res) => this.applyClientList(res),
-      error: (err) => {
-        console.error(err);
-        this.errorMsg = 'Erreur chargement clients';
-      }
-    });
-  }
-
-  private applyClientList(clients: Client[], allowPendingEdit = false): void {
-    this.clients = clients;
-    this.filteredClients = clients;
-
-    if (!allowPendingEdit || !this.pendingEditId) {
-      return;
-    }
-
-    const client = this.clients.find((item) => item.idUser === this.pendingEditId);
-    if (client) {
-      this.updateClient(client);
-    }
-
-    this.pendingEditId = null;
-    this.router.navigate([], { queryParams: { editId: null }, queryParamsHandling: 'merge' });
-  }
-
   private isUserNameTaken(userName: string): boolean {
     return this.clients.some(
       (client) => client.idUser !== this.selectedClientId && String(client.userName ?? '').trim().toLowerCase() === userName.toLowerCase()
     );
   }
 
-  private isEmailTaken(email: string): boolean {
-    return this.clients.some(
-      (client) => client.idUser !== this.selectedClientId && String(client.email ?? '').trim().toLowerCase() === email
-    );
-  }
-
-  private setupSearch(): void {
-    this.search$
-      .pipe(
-        takeUntil(this.destroy$),
-        debounceTime(300),
-        distinctUntilChanged(),
-        switchMap((query) => {
-          const trimmedQuery = query.trim();
-          return trimmedQuery ? this.clientService.searchClients(trimmedQuery) : this.clientService.getAllClients();
-        })
-      )
-      .subscribe({
-        next: (clients) => this.applyClientList(clients),
-        error: (err) => {
-          console.error(err);
-          this.errorMsg = 'Erreur lors de la recherche';
-        }
-      });
-  }
 
   private setupRealTimeValidation(): void {
     this.clientForm
       .get('userName')
       ?.valueChanges.pipe(takeUntil(this.destroy$), debounceTime(500), distinctUntilChanged())
       .subscribe((value) => {
-        if (!value) {
+        const normalizedValue = String(value ?? '').trim();
+
+        if (!normalizedValue) {
           this.usernameValidation = { isValid: false, message: 'Le username ne peut pas etre vide' };
           return;
         }
 
+        if (this.selectedClientId && normalizedValue === this.initialEditValues?.userName) {
+          this.usernameValidation = { isValid: true, message: 'Username inchange' };
+          return;
+        }
+
         this.validationService
-          .validateUsername(value)
+          .validateUsername(normalizedValue)
           .pipe(takeUntil(this.destroy$))
           .subscribe((result) => (this.usernameValidation = result));
       });
@@ -338,8 +280,14 @@ export class ManageClientComponent implements OnInit, OnDestroy {
       .get('email')
       ?.valueChanges.pipe(takeUntil(this.destroy$), debounceTime(300), distinctUntilChanged())
       .subscribe((value) => {
+        const normalizedValue = String(value ?? '').trim().toLowerCase();
+
+        if (this.selectedClientId && normalizedValue === this.initialEditValues?.email) {
+          this.emailValidation = { isValid: true, message: 'Email inchange' };
+          return;
+        }
         this.validationService
-          .validateEmail(value)
+          .validateEmail(normalizedValue)
           .pipe(takeUntil(this.destroy$))
           .subscribe((result) => (this.emailValidation = result));
       });

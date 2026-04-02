@@ -22,11 +22,11 @@ export class ValidationService {
       return of({ isValid: false, message: 'Le username ne peut pas depasser 30 caracteres' });
     }
 
-    const usernamePattern = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
+    const usernamePattern = /^[A-Za-z]+(?:-[A-Za-z]+)*$/;
     if (!usernamePattern.test(value)) {
       return of({
         isValid: false,
-        message: 'Le username doit etre un mot unique ou des mots separes par tirets (ex: jean-marc)'
+        message: 'Le username doit contenir uniquement des lettres et des tirets (ex: jean-marc)'
       });
     }
 
@@ -70,11 +70,7 @@ export class ValidationService {
       return of({ isValid: false, message: 'L email n a pas un format valide' });
     }
 
-    return this.clientService.validateEmail(value).pipe(
-      map((response) => ({ isValid: response.isValid, message: response.message || 'Email valide' })),
-      delay(250),
-      catchError((error) => of({ isValid: false, message: error?.message || 'Email invalide' }))
-    );
+    return of({ isValid: true, message: 'Email valide' }).pipe(delay(250));
   }
 
   validatePhone(phone: number | string): ValidationResult {

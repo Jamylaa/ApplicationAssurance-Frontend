@@ -1,80 +1,411 @@
-﻿<div class="container py-5">
-  <div class="text-center mb-5">
-    <h1 class="display-5 fw-bold text-primary">Souscription à un Contrat</h1>
-    <p class="lead text-muted">Choisissez la protection qui vous convient le mieux en quelques étapes.</p>
-  </div>
-  <!-- Stepper -->
-  <div class="d-flex justify-content-center mb-5">
-    <div class="stepper d-flex align-items-center w-75 position-relative">
-      <div class="step" [class.active]="step >= 1">1</div>
-      <div class="line" [class.active]="step >= 2"></div>
-      <div class="step" [class.active]="step >= 2">2</div>
-      <div class="line" [class.active]="step >= 3"></div>
-      <div class="step" [class.active]="step >= 3">3</div>
+<div class="subscription-shell">
+  <section class="hero-panel">
+    <div class="hero-copy">
+      <span class="eyebrow">Microservice de souscription</span>
+      <h1>Creer, suivre et administrer vos contrats depuis une seule page.</h1>
+      <p>
+        Le formulaire guide la creation d'un nouveau contrat, tandis que la zone de gestion permet de
+        rechercher rapidement par client, email ou statut puis d'agir sur chaque contrat.
+      </p>
     </div>
+    <div class="stats-grid">
+      <article class="stat-card">
+        <span class="stat-card__label">Contrats</span>
+        <strong>{{ totalContracts }}</strong>
+        <small>ensemble des contrats charges</small>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__label">En attente</span>
+        <strong>{{ pendingContracts }}</strong>
+        <small>dossiers a confirmer</small>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__label">En cours</span>
+        <strong>{{ activeContracts }}</strong>
+        <small>contrats actuellement actifs</small>
+      </article>
+      <article class="stat-card">
+        <span class="stat-card__label">Annules</span>
+        <strong>{{ cancelledContracts }}</strong>
+        <small>contrats resilies ou annules</small>
+      </article>
+    </div>
+  </section>
+  <div *ngIf="successMessage" class="alert alert-success subscription-alert" role="alert">
+    <i class="bi bi-check-circle-fill"></i>
+    <span>{{ successMessage }}</span>
   </div>
-  <!-- Step 1: Browse Packs -->
-  <div *ngIf="step === 1" class="animate-fade-in">
-    <div class="row g-4">
-      <div *ngFor="let pack of packs" class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm hover-lift overflow-hidden">
-          <div class="card-header border-0 bg-primary text-white text-center py-3 position-relative">
-            <h4 class="mb-0 fw-bold">{{ pack.nomPack }}</h4>
-            <span class="badge position-absolute top-0 end-0 m-2" [ngClass]="{
-              'bg-warning text-dark': pack.niveauCouverture === 'gold',
-              'bg-info': pack.niveauCouverture === 'premium',
-              'bg-light text-dark': pack.niveauCouverture === 'basic'
-            }">{{ pack.niveauCouverture | uppercase }}</span>
-          </div>
-          <div class="card-body p-4">
-            <div class="text-center mb-4">
-              <span class="display-4 fw-bold text-primary">{{ pack.prixMensuel }}</span>
-              <span class="text-muted">DT/mois</span>
-            </div>
-            <p class="text-muted small mb-4">{{ pack.description }}</p>
-            <ul class="list-unstyled mb-0">
-              <li class="mb-2 d-flex align-items-center">
-                <i class="bi bi-patch-check-fill text-success me-2"></i>
-                <span>Engagement: {{ pack.dureeMinContrat }} mois</span>
-              </li>
-              <li class="mb-2 d-flex align-items-center">
-                <i class="bi bi-patch-check-fill text-success me-2"></i>
-                <span class="small">Couverture {{ pack.niveauCouverture }}</span>
-              </li>
-            </ul>
-          </div>
-          <div class="card-footer border-0 bg-white p-4 pt-0">
-            <button class="btn btn-outline-primary w-100 rounded-pill fw-bold py-2" (click)="selectPack(pack)">
-              Sélectionner ce pack
-            </button>
-          </div>
+  <div *ngIf="errorMessage" class="alert alert-danger subscription-alert" role="alert">
+    <i class="bi bi-exclamation-octagon-fill"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+  <section class="workspace-grid">
+    <article class="surface-card">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Nouvelle souscription</span>
+          <h2>Formulaire de creation</h2>
+        </div>
+        <div *ngIf="referencesLoading" class="inline-loader">
+          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          <span>Chargement des references...</span>
         </div>
       </div>
-    </div>
-  </div>
-  <!-- Step 2: Confirmation -->
-  <div *ngIf="step === 2" class="animate-fade-in text-center mx-auto step-2-max-600">
-    <div class="card border-0 shadow-lg p-5">
-      <i class="bi bi-info-circle display-1 text-primary mb-4 opacity-50"></i>
-      <h3 class="fw-bold mb-3">Récapitulatif de votre choix</h3>
-      <p class="text-muted mb-4">Vous avez choisi le pack <strong>{{ selectedPack?.nomPack }}</strong>. Souhaitez-vous confirmer votre souscription ?</p>
-      
-      <div class="d-flex gap-3 justify-content-center mt-4">
-        <button class="btn btn-light px-5 rounded-pill" (click)="step = 1">Retour</button>
-        <button class="btn btn-primary px-5 rounded-pill shadow" (click)="confirmSubscription()">Confirmer</button>
+      <form [formGroup]="souscriptionForm" (ngSubmit)="submitSubscription()" class="subscription-form">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="clientId" class="form-label">Client</label>
+            <select
+              id="clientId"
+              class="form-select"
+              formControlName="clientId"
+              (change)="onClientChange()"
+              [class.is-invalid]="isInvalid('clientId')"
+            >
+              <option value="">Selectionner un client</option>
+              <option *ngFor="let client of clients" [value]="client.idUser">
+                {{ getClientLabel(client) }}
+              </option>
+            </select>
+            <div *ngIf="isInvalid('clientId')" class="invalid-feedback d-block">
+              Le client est obligatoire.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label for="packId" class="form-label">Pack (Optionnel)</label>
+            <select
+              id="packId"
+              class="form-select"
+              formControlName="packId"
+              (change)="onPackChange()"
+            >
+              <option value="">Selectionner un pack</option>
+              <option *ngFor="let pack of packs" [value]="pack.idPack">
+                {{ pack.nomPack }} - {{ pack.prixMensuel | number:'1.2-2' }} DT
+              </option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="produitId" class="form-label">Produit</label>
+            <select
+              id="produitId"
+              class="form-select"
+              formControlName="produitId"
+              (change)="onProduitChange()"
+              [class.is-invalid]="isInvalid('produitId')"
+            >
+              <option value="">Selectionner un produit actif</option>
+              <option *ngFor="let produit of produits" [value]="produit.idProduit">
+                {{ produit.nomProduit }} - {{ produit.prixBase | number:'1.2-2' }} DT
+              </option>
+            </select>
+            <div *ngIf="isInvalid('produitId')" class="invalid-feedback d-block">
+              Le produit est obligatoire.
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label for="dateDebut" class="form-label">Date de debut</label>
+            <input
+              id="dateDebut"
+              type="date"
+              class="form-control"
+              formControlName="dateDebut"
+              [class.is-invalid]="isInvalid('dateDebut')"
+            />
+            <div *ngIf="isInvalid('dateDebut')" class="invalid-feedback d-block">
+              La date de debut est obligatoire.
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label for="dureeMois" class="form-label">Duree en mois</label>
+            <input
+              id="dureeMois"
+              type="number"
+              min="1"
+              class="form-control"
+              formControlName="dureeMois"
+              [class.is-invalid]="isInvalid('dureeMois')"
+            />
+            <div *ngIf="isInvalid('dureeMois')" class="invalid-feedback d-block">
+              Indiquez une duree d'au moins 1 mois.
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label for="primePersonnalisee" class="form-label">Prime personnalisee</label>
+            <input
+              id="primePersonnalisee"
+              type="number"
+              min="0"
+              step="0.01"
+              class="form-control"
+              formControlName="primePersonnalisee"
+              [class.is-invalid]="isInvalid('primePersonnalisee')"
+            />
+            <div *ngIf="isInvalid('primePersonnalisee')" class="invalid-feedback d-block">
+              La prime doit etre positive.
+            </div>
+          </div>
+          <div class="col-12">
+            <label for="optionsSupplementaires" class="form-label">Options supplementaires</label>
+            <textarea
+              id="optionsSupplementaires"
+              class="form-control"
+              rows="4"
+              formControlName="optionsSupplementaires"
+              placeholder="Ajoutez ici les options ou commentaires utiles pour ce contrat."
+            ></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-lg" [disabled]="submitLoading || referencesLoading">
+            <span *ngIf="submitLoading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            {{ submitLoading ? 'Creation en cours...' : 'Creer la souscription' }}
+          </button>
+        </div>
+      </form>
+    </article>
+    <aside class="surface-card">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Apercu</span>
+          <h2>Resume du contrat</h2>
+        </div>
+      </div>
+      <div class="preview-stack">
+        <div class="preview-block">
+          <span class="preview-label">Client selectionne</span>
+          <h3>{{ selectedClient ? getClientLabel(selectedClient) : 'Aucun client selectionne' }}</h3>
+          <p *ngIf="selectedClient">
+            Age: {{ selectedClient.age }} ans, beneficiaires: {{ selectedClient.nombreBeneficiaires }}
+          </p>
+        </div>
+        <div class="preview-block" *ngIf="selectedPack">
+          <span class="preview-label">Pack selectionne</span>
+          <h3>{{ selectedPack.nomPack }}</h3>
+          <p>{{ selectedPack.description }}</p>
+        </div>
+        <div class="preview-block preview-block--accent">
+          <span class="preview-label">Produit retenu</span>
+          <h3>{{ selectedProduit ? selectedProduit.nomProduit : 'Aucun produit selectionne' }}</h3>
+          <p *ngIf="selectedProduit">{{ selectedProduit.description }}</p>
+          <div *ngIf="selectedProduit" class="product-highlights">
+            <span>Base: {{ selectedProduit.prixBase | number:'1.2-2' }} DT</span>
+            <span>Age min: {{ selectedProduit.ageMin }} ans</span>
+            <span>Age max: {{ selectedProduit.ageMax }} ans</span>
+            <span>{{ selectedProduit.diabetiqueAutorise ? 'Compatible diabetique' : 'Restriction diabetique' }}</span>
+          </div>
+        </div>
+        <div class="preview-block">
+          <span class="preview-label">Preparation API</span>
+          <ul class="preview-list">
+            <li>Validation reactive des champs obligatoires</li>
+            <li>Etat de chargement pendant les appels backend</li>
+            <li>Messages utilisateur pour succes et erreurs</li>
+            <li>Actions de renouvellement et de resiliation</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+  </section>
+  <section class="contracts-panel">
+    <div class="section-heading section-heading--split">
+      <div>
+        <span class="section-kicker">Gestion des contrats</span>
+        <h2>Liste, recherche et details</h2>
+      </div>
+      <div class="toolbar">
+        <div class="search-field">
+          <i class="bi bi-search"></i>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="searchTerm"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="applyFilters()"
+            placeholder="Rechercher par client, email, contrat ou produit"
+          />
+        </div>
+        <select
+          class="form-select toolbar-select"
+          [(ngModel)]="statusFilter"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="applyFilters()"
+        >
+          <option *ngFor="let option of statusOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+        <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">
+          Effacer
+        </button>
+        <button type="button" class="btn btn-outline-primary" (click)="refreshContracts()">
+          Actualiser
+        </button>
       </div>
     </div>
-  </div>
-  <!-- Step 3: Success -->
-  <div *ngIf="step === 3" class="animate-fade-in text-center">
-    <div class="card border-0 shadow-sm p-5 bg-white">
-      <div class="success-icon mb-4">
-        <i class="bi bi-check-circle-fill text-success display-1 animate-bounce"></i>
-      </div>
-      <h2 class="fw-bold text-dark">Félicitations !</h2>
-      <p class="lead text-muted mb-4">Votre demande de souscription pour le <strong>{{ selectedPack?.nomPack }}</strong> a été enregistrée avec succès.</p>
-      <button class="btn btn-primary px-5 rounded-pill" routerLink="/client">Retour au tableau de bord</button>
+    <div class="contracts-layout">
+      <article class="surface-card contracts-table-card">
+        <div *ngIf="contractsLoading" class="loading-state">
+          <span class="spinner-border" aria-hidden="true"></span>
+          <p>Chargement des contrats...</p>
+        </div>
+        <div *ngIf="!contractsLoading && filteredContrats.length === 0" class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <h3>Aucun contrat trouve</h3>
+          <p>Ajustez les filtres ou creez une nouvelle souscription pour alimenter la liste.</p>
+        </div>
+        <div *ngIf="!contractsLoading && filteredContrats.length > 0" class="table-responsive">
+          <table class="table align-middle subscription-table mb-0">
+            <thead>
+              <tr>
+                <th>Contrat</th>
+                <th>Client</th>
+                <th>Email</th>
+                <th>Produit</th>
+                <th>Debut</th>
+                <th>Fin</th>
+                <th>Statut</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let contract of filteredContrats; trackBy: trackByContract"
+                (click)="selectContract(contract)"
+                [class.row-selected]="selectedContract?.idContrat === contract.idContrat"
+              >
+                <td data-label="Contrat">
+                  <strong>{{ contract.idContrat || '-' }}</strong>
+                </td>
+                <td data-label="Client">{{ getContractClientName(contract) }}</td>
+                <td data-label="Email">{{ getContractClientEmail(contract) || '-' }}</td>
+                <td data-label="Produit">{{ getContractProductName(contract) }}</td>
+                <td data-label="Debut">{{ contract.dateDebut | date:'dd/MM/yyyy' }}</td>
+                <td data-label="Fin">{{ getComputedEndDate(contract) | date:'dd/MM/yyyy' }}</td>
+                <td data-label="Statut">
+                  <span [class]="getStatusClass(contract.statut)">
+                    {{ getStatusLabel(contract.statut) }}
+                  </span>
+                </td>
+                <td data-label="Action" class="text-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-dark"
+                    (click)="selectContract(contract); $event.stopPropagation()"
+                  >
+                    Details
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+      <aside class="surface-card details-card">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Contrat selectionne</span>
+            <h2>Details et actions</h2>
+          </div>
+        </div>
+        <div *ngIf="detailsLoading" class="loading-inline">
+          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          <span>Recuperation des details...</span>
+        </div>
+        <div *ngIf="!selectedContract && !detailsLoading" class="empty-state empty-state--compact">
+          <i class="bi bi-file-earmark-text"></i>
+          <h3>Selectionnez un contrat</h3>
+          <p>Les informations detaillees, le renouvellement et la resiliation apparaissent ici.</p>
+        </div>
+        <ng-container *ngIf="selectedContract">
+          <div class="detail-summary">
+            <div>
+              <span class="detail-label">Identifiant</span>
+              <strong>{{ selectedContract.idContrat || '-' }}</strong>
+            </div>
+            <span [class]="getStatusClass(selectedContract.statut)">
+              {{ getStatusLabel(selectedContract.statut) }}
+            </span>
+          </div>
+          <div class="detail-grid">
+            <div>
+              <span class="detail-label">Client</span>
+              <p>{{ getContractClientName(selectedContract) }}</p>
+            </div>
+            <div>
+              <span class="detail-label">Email</span>
+              <p>{{ getContractClientEmail(selectedContract) || '-' }}</p>
+            </div>
+            <div>
+              <span class="detail-label">Produit</span>
+              <p>{{ getContractProductName(selectedContract) }}</p>
+            </div>
+            <div *ngIf="selectedContract.packNom">
+              <span class="detail-label">Pack</span>
+              <p>{{ selectedContract.packNom }}</p>
+            </div>
+            <div>
+              <span class="detail-label">Prime</span>
+              <p>{{ (selectedContract.primePersonnalisee || selectedContract.montant || 0) | number:'1.2-2' }} DT</p>
+            </div>
+            <div>
+              <span class="detail-label">Debut</span>
+              <p>{{ selectedContract.dateDebut | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div>
+              <span class="detail-label">Fin</span>
+              <p>{{ getComputedEndDate(selectedContract) | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div>
+              <span class="detail-label">Duree</span>
+              <p>{{ selectedContract.dureeMois }} mois</p>
+            </div>
+            <div>
+              <span class="detail-label">Options</span>
+              <p>{{ selectedContract.optionsSupplementaires || 'Aucune option supplementaire' }}</p>
+            </div>
+          </div>
+          <div class="action-box">
+            <label for="renewalDuration" class="form-label">Renouvellement en mois</label>
+            <div class="action-box__controls">
+              <input
+                id="renewalDuration"
+                type="number"
+                min="1"
+                class="form-control"
+                [(ngModel)]="renewalDuration"
+                [ngModelOptions]="{ standalone: true }"
+              />
+              <button
+                type="button"
+                class="btn btn-primary"
+                [disabled]="actionLoading"
+                (click)="renewSelectedContract()"
+              >
+                <span
+                  *ngIf="actionLoading && actionTargetId === selectedContract.idContrat"
+                  class="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true"
+                ></span>
+                Renouveler
+              </button>
+            </div>
+            <button
+              type="button"
+              class="btn btn-outline-danger w-100 mt-3"
+              [disabled]="actionLoading"
+              (click)="terminateSelectedContract()"
+            >
+              <span
+                *ngIf="actionLoading && actionTargetId === selectedContract.idContrat"
+                class="spinner-border spinner-border-sm me-2"
+                aria-hidden="true"
+              ></span>
+              Resilier le contrat
+            </button>
+          </div>
+        </ng-container>
+      </aside>
     </div>
-  </div>
+  </section>
 </div>
-

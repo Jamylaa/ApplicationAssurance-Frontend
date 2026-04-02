@@ -1,207 +1,389 @@
-<div class="container-fluid py-4">
-  <div class="row mb-4 align-items-center">
-    <div class="col">
-      <h2 class="h3 mb-0 fw-bold"> Gestion des Souscriptions </h2>
-      <p class="text-muted small mb-0"> Validez, annulez ou suivez les contrats des clients. </p>
-    </div>
-    <div class="col-auto">
-      <button pButton class="p-button-primary d-flex align-items-center shadow-sm" (click)="activeStep = 1">
-        <i class="bi bi-file-earmark-plus me-2"></i> Créer une souscription
-      </button>
-    </div>
-  </div>
-
-  <app-breadcrumb [items]="[{ label: 'Souscriptions', link: '/admin/subscriptions' }]" />
-
-  <div *ngIf="checkedToast" class="toast show position-fixed bottom-0 end-0 m-4 border-0 bg-primary text-white">
-    <div class="toast-body">{{ checkedToast }}</div>
-  </div>
-
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-body p-4">
-      <h5>Étape {{ activeStep }} / 4</h5>
-      <div class="progress mb-3" style="height: 8px;">
-        <div class="progress-bar" role="progressbar" [style.width]="(activeStep/4*100)+'%'" aria-valuemin="0" aria-valuemax="100"></div>
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <p-toolbar styleClass="mb-4 gap-2 bg-white border-0 py-4 px-4 shadow-sm">
+    <ng-template pTemplate="left">
+      <div class="d-flex align-items-center">
+        <div class="bg-primary-subtle p-3 rounded-circle me-3">
+          <i class="pi pi-file-edit text-primary fs-3"></i>
+        </div>
+        <div>
+          <h2 class="h4 mb-0 fw-bold">Gestion des Souscriptions</h2>
+          <p class="text-muted small mb-0">Suivez les contrats et gérez les nouvelles adhésions en temps réel.</p>
+        </div>
       </div>
+    </ng-template>
 
-      <form [formGroup]="souscriptionForm" *ngIf="activeStep <= 4">
-        <div *ngIf="activeStep === 1" formGroupName="client">
-          <h6>1. Coordonnées Client</h6>
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <div class="form-floating mb-2">
-                <input pInputText class="form-control" formControlName="nom" placeholder="Nom">
-                <label>Nom</label>
-              </div>
-              <div class="form-floating mb-2">
-                <input pInputText class="form-control" formControlName="prenom" placeholder="Prénom">
-                <label>Prénom</label>
-              </div>
-              <div class="form-floating mb-2">
-                <input pInputText class="form-control" formControlName="email" placeholder="Email">
-                <label>Email</label>
-              </div>
-              <div class="form-floating mb-2">
-                <input pInputText class="form-control" formControlName="telephone" placeholder="Téléphone">
-                <label>Téléphone</label>
-              </div>
-              <div class="form-floating mb-2">
-                <input pInputText class="form-control" formControlName="adresse" placeholder="Adresse">
-                <label>Adresse</label>
-              </div>
-              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="codePostal" placeholder="Code postal"><label>Code postal</label></div>
-              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="ville" placeholder="Ville"><label>Ville</label></div>
-              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="pays" placeholder="Pays"><label>Pays</label></div>
-              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="dateNaissance" placeholder="Date de naissance" type="date"><label>Date de naissance</label></div>
-              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="numeroCIN" placeholder="CIN"><label>CIN</label></div>
-              <div class="form-floating mb-2"><input pInputText class="form-control" formControlName="numeroPermis" placeholder="Permis"><label>Permis</label></div>
-            </div>
-          </div>
-        </div>
+    <ng-template pTemplate="right">
+      <button pButton pRipple label="Nouvelle Souscription" icon="pi pi-plus" class="p-button-success shadow-sm" (click)="resetForm(); showForm = true"></button>
+    </ng-template>
+  </p-toolbar>
 
-        <div *ngIf="activeStep === 2" formGroupName="produit">
-          <h6>2. Choix du Produit</h6>
-          <div class="row">
-            <div class="col-md-4 mb-3">
-              <label for="produitType" class="form-label small fw-bold text-uppercase">Type du produit</label>
-              <p-dropdown
-                id="produitType"
-                [options]="produitTypes"
-                formControlName="type"
-                placeholder="Type du produit"
-                styleClass="w-full"
-              ></p-dropdown>
-            </div>
-            <div class="col-md-8 mb-3">
-              <label for="selectedProduit" class="form-label small fw-bold text-uppercase">Produit</label>
-              <p-dropdown
-                id="selectedProduit"
-                [options]="getProductsByType()"
-                formControlName="idProduit"
-                optionLabel="nomProduit"
-                optionValue="idProduit"
-                placeholder="Sélectionner un produit"
-                styleClass="w-full"
-              ></p-dropdown>
-            </div>
-            <div class="col-md-6 mb-3 form-floating">
-              <input pInputText class="form-control" type="number" formControlName="primePersonnalisee" min="0" placeholder="Prime personnalisée">
-              <label>Prime personnalisée</label>
-            </div>
-            <div class="col-md-6 mb-3 form-floating">
-              <textarea pInputTextarea class="form-control" formControlName="optionsSupplementaires" placeholder="Options override"></textarea>
-              <label>Options supplémentaires</label>
-            </div>
-          </div>
-        </div>
-
-        <div *ngIf="activeStep === 3" formGroupName="contrat">
-          <h6>3. Paramètres du contrat</h6>
-          <div class="row">
-            <div class="col-md-4 mb-3 form-floating"><input pInputText class="form-control" type="date" formControlName="dateDebut" placeholder="Date de début"><label>Date de début</label></div>
-            <div class="col-md-4 mb-3 form-floating"><input pInputText class="form-control" type="number" formControlName="dureeMois" min="1" placeholder="Durée (mois)"><label>Durée (mois)</label></div>
-            <div class="col-md-4 mb-3 form-floating"><input pInputText class="form-control" type="number" formControlName="primePersonnalisee" min="0" placeholder="Prime personnalisée"><label>Prime personnalisée</label></div>
-            <div class="col-12 mb-3 form-floating"><textarea pInputTextarea class="form-control" formControlName="optionsSupplementaires" placeholder="Options supplémentaires"></textarea><label>Options supplémentaires</label></div>
-          </div>
-        </div>
-
-        <div *ngIf="activeStep === 4">
-          <h6>4. Récapitulatif et validation</h6>
-          <ul class="list-group mb-3">
-            <li class="list-group-item">Client: {{ souscriptionForm.value.client.nom }} {{ souscriptionForm.value.client.prenom }}</li>
-            <li class="list-group-item">Email: {{ souscriptionForm.value.client.email }}</li>
-            <li class="list-group-item">Produit ID: {{ souscriptionForm.value.produit.idProduit }}</li>
-            <li class="list-group-item">Type produit: {{ souscriptionForm.value.produit.type }}</li>
-            <li class="list-group-item">Date début: {{ souscriptionForm.value.contrat.dateDebut }}</li>
-            <li class="list-group-item">Durée: {{ souscriptionForm.value.contrat.dureeMois }} mois</li>
-            <li class="list-group-item">Prime personnalisée: {{ souscriptionForm.value.contrat.primePersonnalisee }} DT</li>
-            <li class="list-group-item">Option: {{ souscriptionForm.value.contrat.optionsSupplementaires }}</li>
-          </ul>
-          <button pButton class="p-button-primary" type="button" (click)="submitSubscription()">Valider la souscription</button>
-        </div>
-
-        <div class="mt-3">
-          <button pButton class="p-button-outlined p-button-secondary me-2" type="button" (click)="prevStep()" [disabled]="activeStep <= 1">Précédent</button>
-          <button pButton class="p-button-success" type="button" (click)="nextStep()" [disabled]="activeStep >= 4">Suivant</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="row mb-4">
-    <div class="col-md-4">
-      <div class="input-group input-group-sm rounded-pill border overflow-hidden">
-        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
-        <input
-          pInputText
-          type="text"
-          class="form-control border-0 shadow-none"
-          placeholder="Rechercher (client / pack / statut)"
-          [(ngModel)]="searchText"
-          (ngModelChange)="filterSubscriptions()"
-        />
+  <p-table #dt [value]="subscriptions" [rows]="10" [paginator]="true" 
+    [globalFilterFields]="['clientNom', 'produitNom', 'statut']"
+    [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true" dataKey="idContrat"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} souscriptions" [showCurrentPageReport]="true"
+    [loading]="isLoading" styleClass="p-datatable-gridlines p-datatable-striped">
+    
+    <ng-template pTemplate="caption">
+      <div class="d-flex align-items-center justify-content-between p-2">
+        <h5 class="m-0 text-secondary">Liste des Contrats Actifs</h5>
+        <span class="p-input-icon-left w-25">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" class="w-100" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Rechercher..." />
+        </span>
       </div>
-    </div>
-  </div>
-  <div *ngIf="isLoading" class="text-center py-5">
-    <div class="spinner-border" role="status"></div>
-  </div>
-  <div *ngIf="!isLoading && error" class="alert alert-danger">{{ error }}</div>
-  <div *ngIf="!isLoading && !error">
-    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="bg-light text-uppercase small fw-bold">
-            <tr>
-              <th class="px-4 py-3">Contrat</th>
-              <th class="py-3">Client</th>
-              <th class="py-3">Pack</th>
-              <th class="py-3 text-center">Statut</th>
-              <th class="py-3 text-center">Début</th>
-              <th class="py-3 text-center">Fin</th>
-              <th class="px-4 py-3 text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let sub of filteredSubscriptions">
-              <td class="px-4">{{ sub.idContrat }}</td>
-              <td>{{ sub.client?.nom || sub.clientId || '-' }}</td>
-              <td>{{ sub.produit?.nomProduit || sub.idProduit || '-' }}</td>
-              <td class="text-center">
-                <span class="badge" [ngClass]="{
-                  'bg-success': sub.statut === 'EN_COURS',
-                  'bg-warning text-dark': sub.statut === 'EN_ATTENTE',
-                  'bg-secondary': sub.statut === 'TERMINE',
-                  'bg-danger': sub.statut === 'ANNULÉ'
-                }">
-                  {{ sub.statut }}
-                </span>
-              </td>
-              <td class="text-center">{{ sub.dateDebut | date:'dd/MM/yyyy' }}</td>
-              <td class="text-center">{{ sub.dateFin ? (sub.dateFin | date:'dd/MM/yyyy') : '-' }}</td>
-              <td class="px-4 text-end">
-                <div class="rounded-pill overflow-hidden shadow-sm border d-inline-flex">
-                  <button pButton class="p-button-sm p-button-text p-button-secondary border-0 py-2 px-3" (click)="setStatus(sub, 'EN_COURS')" title="Marquer en cours">
-                    <i class="bi bi-play-fill"></i>
-                  </button>
-                  <button pButton class="p-button-sm p-button-text p-button-secondary border-0 py-2 px-3" (click)="setStatus(sub, 'TERMINE')" title="Marquer terminé">
-                    <i class="bi bi-check2"></i>
-                  </button>
-                  <button pButton class="p-button-sm p-button-text p-button-secondary border-0 py-2 px-3" (click)="setStatus(sub, 'ANNULÉ')" title="Annuler">
-                    <i class="bi bi-x-lg"></i>
-                  </button>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem"></th>
+        <th pSortableColumn="idContrat" style="width: 10%">ID <p-sortIcon field="idContrat"></p-sortIcon></th>
+        <th style="width: 20%">Client</th>
+        <th style="width: 15%">Produit</th>
+        <th pSortableColumn="dateDebut" style="width: 15%">Date d'effet <p-sortIcon field="dateDebut"></p-sortIcon></th>
+        <th style="width: 10%">Durée</th>
+        <th pSortableColumn="primePersonnalisee" style="width: 15%">Prime Annuelle <p-sortIcon field="primePersonnalisee"></p-sortIcon></th>
+        <th pSortableColumn="statut" style="width: 10%">Statut <p-sortIcon field="statut"></p-sortIcon></th>
+        <th class="text-end" style="width: 15%">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-s let-expanded="expanded">
+      <tr>
+        <td>
+          <button type="button" pButton pRipple [pRowToggler]="s" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+        </td>
+        <td><span class="font-monospace text-muted small">#{{ s.idContrat?.substring(0,8) }}</span></td>
+        <td>
+          <div class="d-flex align-items-center">
+            <p-avatar [label]="(s.clientNom || 'C').charAt(0)" shape="circle" class="me-2" [style]="{'background-color': '#dee2e6', 'color': '#343a40'}"></p-avatar>
+            <div class="d-flex flex-column">
+              <span class="fw-bold text-dark">{{ s.clientNom }}</span>
+              <span class="text-muted x-small" style="font-size: 0.75rem;">{{ s.clientEmail }}</span>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="d-flex align-items-center">
+             <i class="pi me-2" [ngClass]="getProductIcon(s.produit?.type)" [style.color]="getProductColor(s.produit?.type)"></i>
+             <span class="fw-semibold">{{ s.produitNom }}</span>
+          </div>
+        </td>
+        <td><i class="pi pi-calendar me-2 text-muted"></i>{{ s.dateDebut | date:'dd MMM yyyy' }}</td>
+        <td><span class="badge bg-light text-dark px-2 border">{{ s.dureeMois }} mois</span></td>
+        <td><span class="fw-bold text-success fs-5">{{ s.primePersonnalisee | number:'1.2-2' }} {{ s.primeTotale ? s.primeTotale + ' TND' : s.primePersonnalisee + ' TND' }}</span></td>
+        <td>
+          <p-tag [value]="s.statut" [severity]="(s.statut === 'VALIDE' || s.statut === 'EN_COURS' || s.statut === 'ACTIF') ? 'success' : (s.statut === 'EN_ATTENTE' ? 'warning' : 'danger')" rounded="true"></p-tag>
+        </td>
+        <td class="text-end">
+          <div class="d-flex justify-content-end gap-1">
+            <button pButton pRipple icon="pi pi-check" class="p-button-rounded p-button-success p-button-sm p-button-outlined" 
+              *ngIf="s.statut === 'EN_ATTENTE'" pTooltip="Valider" (click)="setStatus(s, 'VALIDE')"></button>
+            <button pButton pRipple icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm p-button-outlined" 
+              *ngIf="s.statut === 'EN_ATTENTE'" pTooltip="Rejeter" (click)="setStatus(s, 'RESILIE')"></button>
+            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning p-button-sm p-button-outlined" 
+              pTooltip="Modifier" (click)="editSubscription(s)"></button>
+            <button pButton pRipple icon="pi pi-power-off" class="p-button-rounded p-button-secondary p-button-sm p-button-outlined" 
+              *ngIf="s.statut === 'VALIDE' || s.statut === 'EN_COURS' || s.statut === 'ACTIF'" pTooltip="Résilier" (click)="deactivateSubscription(s)"></button>
+            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-sm p-button-outlined" 
+              pTooltip="Supprimer" (click)="deleteSubscription(s.idContrat)"></button>
+            <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-info p-button-sm p-button-outlined" [pRowToggler]="s" pTooltip="Détails"></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="rowexpansion" let-s>
+      <tr>
+        <td colspan="9">
+          <div class="p-4 bg-light-subtle rounded-3 shadow-inner">
+            <div class="row g-4">
+              <!-- Client Details -->
+              <div class="col-md-5">
+                <div class="card h-100 border-0 shadow-sm">
+                  <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0 text-primary fw-bold"><i class="pi pi-user-edit me-2"></i>Détails du Client</h6>
+                  </div>
+                  <div class="card-body pt-0">
+                    <ul class="list-unstyled mb-0">
+                      <li class="mb-2 d-flex justify-content-between border-bottom pb-2">
+                        <span class="text-muted">Nom complet :</span>
+                        <span class="fw-semibold">{{ s.clientNom }}</span>
+                      </li>
+                      <li class="mb-2 d-flex justify-content-between border-bottom pb-2">
+                        <span class="text-muted">Email :</span>
+                        <span>{{ s.clientEmail }}</span>
+                      </li>
+                      <li class="mb-2 d-flex justify-content-between border-bottom pb-2">
+                        <span class="text-muted">Téléphone :</span>
+                        <span>{{ s.clientPhone || s.client?.telephone || 'Non renseigné' }}</span>
+                      </li>
+                       <li class="mb-2 d-flex justify-content-between border-bottom pb-2">
+                        <span class="text-muted">Numéro CIN :</span>
+                        <span class="fw-semibold">{{ s.client?.numeroCIN || 'Non renseigné' }}</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-              </td>
-            </tr>
-            <tr *ngIf="filteredSubscriptions.length === 0">
-              <td colspan="7" class="text-center py-5 text-muted">
-                <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
-                Aucune souscription trouvée.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+              
+              <!-- Product & Contract Details -->
+              <div class="col-md-7">
+                <div class="card h-100 border-0 shadow-sm">
+                  <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0 text-success fw-bold"><i class="pi pi-shield me-2"></i>Détails du Produit & Contrat</h6>
+                  </div>
+                  <div class="card-body pt-0">
+                    <div class="row g-3">
+                      <div class="col-12">
+                        <p class="mb-2"><span class="text-muted">Description du produit :</span></p>
+                        <div class="bg-light p-3 rounded small text-secondary border">
+                          {{ s.produitDescription || s.produit?.description || 'Aucune description disponible' }}
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="p-3 border rounded bg-white">
+                          <small class="text-muted d-block mb-1">Pack sélectionné</small>
+                          <span class="fw-bold">{{ s.packNom || 'Standard' }}</span>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="p-3 border rounded bg-white">
+                          <small class="text-muted d-block mb-1">Montant Total</small>
+                          <span class="fw-bold text-success">{{ s.primeTotale || s.primePersonnalisee }} TND</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Subscription Wizard Dialog -->
+<p-dialog [(visible)]="showForm" [style]="{ width: '950px' }" [header]="isEditing ? 'Modifier la Souscription' : 'Assistant de nouvelle adhésion'" [modal]="true" styleClass="p-fluid rounded-4 overflow-hidden" [draggable]="false" [resizable]="false">
+  <ng-template pTemplate="content">
+    <div class="pt-4 pb-5">
+      <p-steps [model]="stepItems" [(activeIndex)]="activeStepIndex" [readonly]="false"></p-steps>
+    </div>
+
+    <form [formGroup]="souscriptionForm">
+      <!-- Step 1: Client -->
+      <div *ngIf="activeStepIndex === 0" class="step-content p-4 text-center" formGroupName="client">
+        <h4 class="mb-1 fw-bold">Qui est le client ?</h4>
+        <p class="text-muted mb-4">Vérifiez ou complétez les informations du prospect.</p>
+        
+        <div class="field mb-5 w-75 mx-auto text-start">
+          <label class="fw-bold fs-7 text-uppercase text-muted d-block mb-1">Rechercher un client existant (Optionnel)</label>
+          <p-dropdown [options]="clients" (onChange)="onClientSelect($event)" 
+            optionLabel="userName" filter="true" filterBy="userName,email" 
+            placeholder="Sélectionnez un client pour auto-remplir..." 
+            styleClass="p-inputtext-lg rounded-pill shadow-sm bg-white" 
+            [showClear]="true">
+            <ng-template let-c pTemplate="item">
+              <div class="d-flex flex-column py-1">
+                <span class="fw-bold">{{ c.userName }}</span>
+                <small class="text-muted">{{ c.email }}</small>
+              </div>
+            </ng-template>
+          </p-dropdown>
+          <div class="mt-2 text-center">
+            <span class="badge rounded-pill bg-light text-muted border px-3">OU REMPLIR MANUELLEMENT CI-DESSOUS</span>
+          </div>
+        </div>
+        
+        <div class="text-start mx-auto" style="max-width: 800px;">
+          <div class="formgrid grid">
+            <div class="field col-6">
+              <label class="fw-bold fs-7 text-uppercase text-muted">Nom</label>
+              <input type="text" pInputText formControlName="nom" class="p-inputtext-lg" />
+            </div>
+            <div class="field col-6">
+              <label class="fw-bold fs-7 text-uppercase text-muted">Prénom</label>
+              <input type="text" pInputText formControlName="prenom" class="p-inputtext-lg" />
+            </div>
+            <div class="field col-6 mt-3">
+              <label class="fw-bold fs-7 text-uppercase text-muted">Email professionnel</label>
+              <input type="email" pInputText formControlName="email" class="p-inputtext-lg" />
+            </div>
+            <div class="field col-6 mt-3">
+              <label class="fw-bold fs-7 text-uppercase text-muted">Téléphone</label>
+              <p-inputMask mask="99999999" formControlName="telephone" styleClass="p-inputtext-lg"></p-inputMask>
+            </div>
+          </div>
+          <p-divider align="left" styleClass="my-4">
+             <div class="inline-flex align-items-center">
+                <i class="pi pi-map-marker me-2"></i>
+                <b>Localisation</b>
+             </div>
+          </p-divider>
+          <div class="field">
+            <label class="fw-bold fs-7 text-uppercase text-muted">Adresse de résidence</label>
+            <input type="text" pInputText formControlName="adresse" />
+          </div>
+          <div class="formgrid grid">
+            <div class="field col-4">
+              <label class="fw-bold fs-7 text-uppercase text-muted">Ville</label>
+              <input type="text" pInputText formControlName="ville" />
+            </div>
+            <div class="field col-4">
+              <label class="fw-bold fs-7 text-uppercase text-muted">Code Postal</label>
+              <input type="text" pInputText formControlName="codePostal" />
+            </div>
+            <div class="field col-4">
+              <label class="fw-bold fs-7 text-uppercase text-muted">Date Naissance</label>
+              <input type="date" pInputText formControlName="dateNaissance" />
+            </div>
+          </div>
+          <div class="field mt-3">
+            <label class="fw-bold fs-7 text-uppercase text-muted">Numéro CIN</label>
+            <p-inputMask mask="99999999" formControlName="numeroCIN" placeholder="________" styleClass="p-inputtext-lg"></p-inputMask>
+            <small class="text-muted">8 chiffres obligatoires</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Product -->
+      <div *ngIf="activeStepIndex === 1" class="step-content p-4" formGroupName="produit">
+        <div class="text-center mb-5">
+           <h4 class="fw-bold mb-1">Choix du Produit d'assurance</h4>
+           <p class="text-muted">Sélectionnez le type de couverture souhaité.</p>
+        </div>
+        
+        <div class="field mb-5 w-50 mx-auto">
+          <p-dropdown [options]="produitTypes" formControlName="type" (onChange)="onTypeChange()" placeholder="Secteur de couverture..." styleClass="p-inputtext-lg rounded-pill shadow-sm">
+             <ng-template pTemplate="selectedItem">
+                <div class="d-flex align-items-center" *ngIf="souscriptionForm.get('produit.type')?.value">
+                   <i class="pi me-2" [ngClass]="getProductIcon(souscriptionForm.get('produit.type')?.value)" [style.color]="getProductColor(souscriptionForm.get('produit.type')?.value)"></i>
+                   <span>{{ souscriptionForm.get('produit.type')?.value }}</span>
+                </div>
+             </ng-template>
+             <ng-template let-type pTemplate="item">
+                <div class="d-flex align-items-center">
+                  <i class="pi me-2" [ngClass]="getProductIcon(type.value)" [style.color]="getProductColor(type.value)"></i>
+                  <span>{{ type.label }}</span>
+                </div>
+             </ng-template>
+          </p-dropdown>
+        </div>
+
+        <div class="field" *ngIf="souscriptionForm.get('produit.type')?.value">
+          <div class="grid justify-content-center">
+            <div class="col-12 md:col-6 lg:col-4 p-2" *ngFor="let p of getProductsByType()">
+              <div class="h-100 p-4 border rounded-4 shadow-sm bg-white hover-shadow-lg transition-all pointer position-relative" 
+                [class.border-primary]="souscriptionForm.get('produit.idProduit')?.value === p.idProduit"
+                [style.border-width]="souscriptionForm.get('produit.idProduit')?.value === p.idProduit ? '2px' : '1px'"
+                (click)="souscriptionForm.get('produit.idProduit')?.setValue(p.idProduit); onProductChange()">
+                
+                <div class="position-absolute top-0 end-0 p-3" *ngIf="souscriptionForm.get('produit.idProduit')?.value === p.idProduit">
+                   <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                     <i class="pi pi-check small"></i>
+                   </div>
+                </div>
+
+                <div class="mb-3">
+                   <i class="pi fs-2 mb-2 d-block" [ngClass]="getProductIcon(p.type)" [style.color]="getProductColor(p.type)"></i>
+                   <h5 class="fw-bold mb-1">{{ p.nomProduit }}</h5>
+                   <p class="text-muted x-small line-clamp-2 mb-0" style="font-size: 0.8rem;">{{ p.description }}</p>
+                </div>
+                
+                <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">A partir de</span>
+                    <span class="h5 mb-0 fw-bold text-primary">{{ p.prixBase }} TND</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Pack -->
+      <div *ngIf="activeStepIndex === 2" class="step-content p-4">
+        <div class="text-center mb-5">
+           <h4 class="fw-bold mb-1">Affiner avec un Pack</h4>
+           <p class="text-muted">Des garanties supplémentaires adaptées.</p>
+        </div>
+
+        <div class="grid justify-content-center">
+          <div class="col-12 md:col-10 lg:col-8" *ngFor="let pack of getPacksByType()">
+            <div class="p-4 mb-3 border rounded-4 shadow-sm bg-white hover-shadow transition-all pointer d-flex" 
+              [class.border-success]="isSelectedPack(pack)" 
+              [style.border-width]="isSelectedPack(pack) ? '2px' : '1px'"
+              (click)="selectPack(pack)">
+              
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center mb-2">
+                  <h5 class="mb-0 text-primary fw-bold me-3">{{ pack.nomPack }}</h5>
+                </div>
+                <p class="text-muted small mb-3">{{ pack.description }}</p>
+                <div class="d-flex gap-2 flex-wrap">
+                  <p-tag *ngFor="let prodId of pack.produitsIds" [value]="prodId" severity="info" styleClass="px-2 small"></p-tag>
+                </div>
+              </div>
+              
+              <div class="text-end ms-4 d-flex flex-column justify-content-center border-start ps-4">
+                   <div class="h3 mb-0 text-success fw-bold">{{ pack.prixMensuel }} TND</div>
+                   <small class="text-muted">par mois</small>
+                   <button type="button" pButton icon="pi pi-check" class="p-button-text p-button-sm mt-2" *ngIf="isSelectedPack(pack)" label="Sélectionné"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Contract -->
+      <div *ngIf="activeStepIndex === 3" class="step-content p-4" formGroupName="contrat">
+        <div class="text-center mb-5">
+           <h4 class="fw-bold mb-1">Finalisation du Contrat</h4>
+           <p class="text-muted">Fixez les conditions d'activation.</p>
+        </div>
+
+        <div class="mx-auto border p-5 rounded-4 shadow-sm bg-white" style="max-width: 700px;">
+          <div class="formgrid grid">
+            <div class="field col-12 mb-4">
+              <label class="fw-bold mb-2">Date d'activation du contrat</label>
+              <input type="date" pInputText formControlName="dateDebut" class="p-inputtext-lg" />
+            </div>
+            <div class="field col-12 mb-4">
+              <label class="fw-bold mb-2">Engagement (en mois)</label>
+              <p-inputNumber formControlName="dureeMois" [showButtons]="true" [min]="1" suffix=" mois" styleClass="p-inputtext-lg"></p-inputNumber>
+            </div>
+            <div class="field col-12 mt-4 bg-success-subtle p-4 rounded-3 border-success border">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                 <label class="fw-bold text-success fs-5">Prime Totale (TND)</label>
+                 <span class="text-success fw-bold h4 mb-0">{{ souscriptionForm.get('contrat.primePersonnalisee')?.value || 0 | number:'1.2-2' }} TND</span>
+              </div>
+              <p-inputNumber formControlName="primePersonnalisee" mode="currency" currency="TND" [min]="0" placeholder="Ajuster le montant final..." styleClass="p-inputtext-lg"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="d-flex justify-content-between w-100 px-4 py-3 bg-light border-top">
+      <button pButton pRipple label="Retour" icon="pi pi-arrow-left" class="p-button-text p-button-lg" 
+        (click)="prevStep()" [disabled]="activeStepIndex === 0"></button>
+      
+      <div class="d-flex gap-2">
+        <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text p-button-danger p-button-lg" 
+          (click)="showForm = false"></button>
+        <button pButton pRipple label="Suivant" icon="pi pi-arrow-right" class="p-button-primary p-button-lg px-5 shadow" 
+          (click)="nextStep()" *ngIf="activeStepIndex < 3"></button>
+        <button pButton pRipple [label]="isEditing ? 'Enregistrer les modifications' : 'Valider la Souscription'" icon="pi pi-check-circle" class="p-button-success p-button-lg px-5 shadow" 
+          (click)="submitSubscription()" *ngIf="activeStepIndex === 3" [loading]="isLoading"></button>
       </div>
     </div>
-  </div>
-</div>
+  </ng-template>
+</p-dialog>
+
+<style>
+  .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05); }
+  .hover-shadow-lg:hover { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); transform: translateY(-2px); }
+  .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+</style>

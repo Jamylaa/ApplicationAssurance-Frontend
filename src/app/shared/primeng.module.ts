@@ -15,6 +15,20 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { PasswordModule } from 'primeng/password';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { TabViewModule } from 'primeng/tabview';
+import { StepsModule } from 'primeng/steps';
+import { ToolbarModule } from 'primeng/toolbar';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TooltipModule } from 'primeng/tooltip';
+import { CheckboxModule } from 'primeng/checkbox';
+import { AvatarModule } from 'primeng/avatar';
+import { InputMaskModule } from 'primeng/inputmask';
+import { RippleModule } from 'primeng/ripple';
+import { TagModule } from 'primeng/tag';
 
 const PRIME_NG_MODULES = [
   BadgeModule,
@@ -31,7 +45,21 @@ const PRIME_NG_MODULES = [
   PanelMenuModule,
   PasswordModule,
   TableModule,
-  ToastModule
+  ToastModule,
+  ConfirmDialogModule,
+  BreadcrumbModule,
+  TabViewModule,
+  StepsModule,
+  ToolbarModule,
+  InputNumberModule,
+  ConfirmPopupModule,
+  ProgressSpinnerModule,
+  TooltipModule,
+  CheckboxModule,
+  AvatarModule,
+  InputMaskModule,
+  RippleModule,
+  TagModule
 ];
 
 @NgModule({

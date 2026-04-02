@@ -1,5 +1,4 @@
 import { Role } from './role.enum';
-
 export interface Client {
   idUser?: string;
   userName: string;

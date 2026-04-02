@@ -63,7 +63,7 @@ export class RecommendationChatbotService {
    */
   formatHistory(messages: ChatMessage[]): Array<{role: 'user' | 'assistant', content: string}> {
     return messages.map(msg => ({
-      role: msg.sender === 'user' ? 'user' : 'assistant',
+      role: (msg.sender === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
       content: msg.text
     }));
   }

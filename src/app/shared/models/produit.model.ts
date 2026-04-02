@@ -1,3 +1,5 @@
+export type ProduitType = 'AUTO' | 'HABITATION' | 'SANTE';
+
 export interface Produit {
   idProduit?: string;
   nomProduit: string;
@@ -9,7 +11,7 @@ export interface Produit {
   maladieChroniqueAutorisee: boolean;
   diabetiqueAutorise: boolean;
   actif: boolean;
-  type?: 'AUTO' | 'HABITATION' | 'SANTE' | 'VIE';
+  type?: ProduitType;
   couverture?: number;
   dureeMax?: string;
   conditions?: string;

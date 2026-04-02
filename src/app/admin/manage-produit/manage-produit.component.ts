@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ProduitService } from '../../shared/services/produit.service';
 import { GarantieService } from '../../shared/services/garantie.service';
-import { Produit } from '../../shared/models/produit.model';
+import { Produit, ProduitType } from '../../shared/models/produit.model';
 import { Garantie } from '../../shared/models/garantie.model';
-import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
+
 @Component({
   selector: 'app-manage-produit',
   templateUrl: './manage-produit.component.html',
@@ -13,27 +14,31 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 })
 export class ManageProduitComponent implements OnInit {
   produits: Produit[] = [];
-  filteredProduits: Produit[] = [];
   garanties: Garantie[] = [];
+  loading = true;
   produitForm: FormGroup;
-  searchText = '';
-  sortField = '';
-  sortDirection: 'asc' | 'desc' = 'asc';
   isEditing = false;
   currentId: any = null;
   showForm = false;
   breadcrumbItems = [{ label: 'Produits', link: '/admin/produits' }];
-  pendingEditId?: string;
+  produitTypes: { label: string; value: ProduitType }[] = [
+    { label: 'Santé', value: 'SANTE' },
+    { label: 'Auto', value: 'AUTO' },
+    { label: 'Habitation', value: 'HABITATION' }
+  ];
 
   constructor(
     private produitService: ProduitService,
     private garantieService: GarantieService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {
     this.produitForm = this.fb.group({
       nomProduit: ['', Validators.required],
+      type: ['SANTE', Validators.required],
       description: ['', Validators.required],
       prixBase: [0, [Validators.required, Validators.min(0)]],
       ageMin: [0, [Validators.required, Validators.min(0)]],
@@ -45,32 +50,22 @@ export class ManageProduitComponent implements OnInit {
     });
   }
   ngOnInit(): void {
-    this.route.queryParamMap.subscribe((params) => {
-      const editId = params.get('editId');
-      if (editId) {
-        this.pendingEditId = editId;
-      }
-    });
     this.loadGaranties();
     this.loadProduits();
   }
+
   loadProduits(): void {
+    this.loading = true;
     this.produitService.getAllProduits().subscribe({
       next: (res) => {
         this.produits = res;
-        this.filteredProduits = res;
-
-        if (this.pendingEditId) {
-          const product = this.produits.find((p) => p.idProduit === this.pendingEditId);
-          if (product) {
-            this.modifier(product);
-            this.showForm = true;
-          }
-          this.pendingEditId = undefined;
-          this.router.navigate([], { queryParams: { editId: null }, queryParamsHandling: 'merge' });
-        }
+        this.loading = false;
       },
-      error: (err) => console.error('Error loading produits', err)
+      error: (err) => {
+        console.error('Error loading produits', err);
+        this.loading = false;
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de charger les produits' });
+      }
     });
   }
 
@@ -81,63 +76,28 @@ export class ManageProduitComponent implements OnInit {
     });
   }
 
-  filterProduits(): void {
-    const search = this.searchText.toLowerCase().trim();
-
-    if (!search) {
-      this.filteredProduits = [...this.produits];
-      this.sortField = '';
-      this.sortDirection = 'asc';
-      return;
-    }
-
-    this.filteredProduits = this.produits.filter((p) =>
-      p.nomProduit.toLowerCase().includes(search) ||
-      p.description.toLowerCase().includes(search)
-    );
-
-    if (this.sortField) {
-      this.sortProduits(this.sortField as keyof Produit);
-    }
-  }
-
-  sortProduits(field: keyof Produit): void {
-    if (this.sortField === field) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortField = field;
-      this.sortDirection = 'asc';
-    }
-
-    this.filteredProduits = [...this.filteredProduits].sort((a, b) => {
-      const aVal = a[field] as any;
-      const bVal = b[field] as any;
-
-      if (aVal == null) return 1;
-      if (bVal == null) return -1;
-      if (aVal === bVal) return 0;
-
-      const comparison = aVal > bVal ? 1 : -1;
-      return this.sortDirection === 'asc' ? comparison : -comparison;
-    });
-  }
-
   onSubmit(): void {
     if (this.produitForm.valid) {
       const data = this.produitForm.value;
       if (this.isEditing) {
-        this.produitService.updateProduit(this.currentId, data).subscribe(() => {
-          this.loadProduits();
-          this.resetForm();
-          this.showForm = false;
-          window.location.reload(); // force refresh to avoid stale state
+        this.produitService.updateProduit(this.currentId, data).subscribe({
+          next: () => {
+            this.loadProduits();
+            this.resetForm();
+            this.showForm = false;
+            this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Produit mis à jour' });
+          },
+          error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Mise à jour échouée' })
         });
       } else {
-        this.produitService.createProduit(data).subscribe(() => {
-          this.loadProduits();
-          this.resetForm();
-          this.showForm = false;
-          window.location.reload(); // force refresh to avoid stale state
+        this.produitService.createProduit(data).subscribe({
+          next: () => {
+            this.loadProduits();
+            this.resetForm();
+            this.showForm = false;
+            this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Produit créé' });
+          },
+          error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Création échouée' })
         });
       }
     }
@@ -150,20 +110,28 @@ export class ManageProduitComponent implements OnInit {
     this.showForm = true;
   }
 
-  supprimer(idProduit: any): void {
-    if (confirm('Supprimer ce produit ?')) {
-      this.produitService.deleteProduit(idProduit).subscribe(() => {
-        this.loadProduits();
-        this.produits = this.produits.filter(p => p.idProduit !== idProduit);
-        window.location.reload(); // force reload to refresh list
-      });
-    }
+  supprimer(idProduit: string): void {
+    this.confirmationService.confirm({
+      message: 'Voulez-vous vraiment supprimer ce produit ?',
+      header: 'Confirmation de suppression',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.produitService.deleteProduit(idProduit).subscribe({
+          next: () => {
+            this.loadProduits();
+            this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Produit supprimé' });
+          },
+          error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Suppression échouée' })
+        });
+      }
+    });
   }
 
   resetForm(): void {
     this.isEditing = false;
     this.currentId = null;
     this.produitForm.reset({
+      type: 'SANTE',
       prixBase: 0,
       ageMin: 0,
       ageMax: 100,
@@ -174,7 +142,15 @@ export class ManageProduitComponent implements OnInit {
     });
   }
 
-  getGarantieNames(ids: string[]): string {
+  getTypeLabel(type: ProduitType | string | undefined): string {
+    switch (type) {
+      case 'AUTO': return 'Auto';
+      case 'HABITATION': return 'Habitation';
+      case 'SANTE': default: return 'Santé';
+    }
+  }
+
+  getGarantieNames(ids: string[] | undefined): string {
     if (!ids || ids.length === 0) return 'Aucune';
     return this.garanties
       .filter(g => ids.includes(g.idGarantie!))

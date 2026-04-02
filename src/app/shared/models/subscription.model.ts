@@ -12,7 +12,7 @@ export interface ClientDetails {
   numeroPermis: string;
 }
 
-export type ProduitType = 'AUTO' | 'HABITATION' | 'SANTE' | 'VIE';
+export type ProduitType = 'SANTE' | 'AUTO' | 'HABITATION' | 'VIE';
 
 export interface ProduitDetails {
   idProduit?: string;
@@ -28,16 +28,29 @@ export interface ProduitDetails {
 
 export interface Subscription {
   idContrat?: string;
-  client?: ClientDetails;
+  // --- Snapshot fields from Backend ---
   clientId?: string;
+  clientNom?: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  produitId?: string;
+  produitNom?: string;
+  produitDescription?: string;
+  produitPrixBase?: number;
+  packId?: string;
+  packNom?: string;
+  
+  // --- Enriched objects for Frontend ---
+  client?: ClientDetails;
   produit?: ProduitDetails;
-  idProduit?: string;
+
+  // --- Contract details ---
   dateDebut: string; // ISO date string
   dureeMois: number;
   primePersonnalisee: number;
   optionsSupplementaires?: string;
   dateFin?: string;  // ISO date string
-  statut: 'EN_COURS' | 'TERMINE' | 'ANNULÉ' | 'EN_ATTENTE';
+  statut: 'EN_COURS' | 'TERMINE' | 'ANNULÉ' | 'EN_ATTENTE' | 'VALIDE' | 'RESILIE';
   montant: number;
   commentaire?: string;
 }

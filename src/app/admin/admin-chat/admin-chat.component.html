@@ -11,7 +11,6 @@
         <p class="text-muted small mb-0"> Guide de création de Garanties, Produits et Packs.</p>
       </div>
     </div>
-    
     <div class="text-end progress-min-width" *ngIf="progress > 0">
       <div class="small fw-bold mb-1">Progression : {{progress}} % </div>
       <div class="progress progress-thin">
@@ -20,7 +19,6 @@
       </div>
     </div>
   </div>
-
   <!-- Messages -->
   <div class="chat-messages-container flex-grow-1 overflow-auto rounded-4 border bg-light p-3 mb-3" #scrollContainer>
     <div *ngFor="let msg of messages" class="d-flex mb-3"
@@ -40,7 +38,6 @@
         </div>
       </div>
     </div>
-
     <!-- Loading -->
     <div class="d-flex justify-content-start mb-3" *ngIf="loading">
       <div class="me-2"><div class="ai-avatar"><i class="bi bi-robot"></i></div></div>
@@ -48,7 +45,6 @@
         <span class="typing-dots">L'IA prépare la suite<span>.</span><span>.</span><span>.</span></span>
       </div>
     </div>
-
     <!-- Success / Reset -->
     <div class="text-center my-4" *ngIf="isComplete">
       <div class="p-3 bg-white rounded-4 border shadow-sm d-inline-block">
@@ -60,7 +56,6 @@
       </div>
     </div>
   </div>
-
   <!-- Suggested Choices -->
   <div class="d-flex flex-wrap gap-2 mb-2" *ngIf="suggestedChoices.length > 0 && !loading">
     <button *ngFor="let choice of suggestedChoices" 

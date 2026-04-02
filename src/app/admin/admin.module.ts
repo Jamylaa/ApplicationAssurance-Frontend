@@ -22,6 +22,7 @@ import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.compone
 import { BreadcrumbComponent } from '../shared/components/breadcrumb/breadcrumb.component';
 import { UnifiedChatbotComponent } from './unified-chatbot/unified-chatbot.component';
 import { PrimeNgModule } from '../shared/primeng.module';
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 @NgModule({
   declarations: [
@@ -43,6 +44,10 @@ import { PrimeNgModule } from '../shared/primeng.module';
     NavbarComponent,
     AdminLayoutComponent,
     UnifiedChatbotComponent
+  ],
+  providers: [
+    MessageService,
+    ConfirmationService
   ],
   exports: [
     AdminLayoutComponent

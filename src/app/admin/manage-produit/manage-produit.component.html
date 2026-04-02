@@ -1,163 +1,139 @@
-﻿<div class="container-fluid py-4">
-  <!-- Header -->
-  <div class="row mb-4 align-items-center">
-    <div class="col">
-      <h2 class="h3 mb-0 fw-bold">Gestion des Produits</h2>
-      <p class="text-muted small mb-0">Créez et configurez vos offres de produits d'assurance.</p>
-    </div>
-    <div class="col-auto">
-      <button pButton class="p-button-primary d-flex align-items-center shadow-sm" *ngIf="!showForm" (click)="resetForm(); showForm = true">
-        <i class="bi bi-plus-lg me-2"></i> Nouveau Produit
-      </button>
-      <button pButton class="p-button-outlined p-button-secondary d-flex align-items-center shadow-sm" *ngIf="showForm" (click)="showForm = false">
-        <i class="bi bi-x-lg me-2"></i> Annuler
-      </button>
-    </div>
-  </div>
-  <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
-  <!-- Inline Form -->
-  <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden animate__animated animate__fadeInDown" *ngIf="showForm">
-    <div class="card-header bg-light border-0 py-3 px-4">
-      <h5 class="card-title fw-bold mb-0">{{ isEditing ? 'Modifier' : 'Ajouter' }} un Produit</h5>
-    </div>
-    <form [formGroup]="produitForm" (ngSubmit)="onSubmit()">
-      <div class="card-body p-4">
-        <div class="row">
-          <div class="col-md-8 mb-3 flex flex-column gap-2">
-            <label for="nomProduit" class="form-label small fw-bold text-uppercase">Nom du Produit</label>
-            <input id="nomProduit" type="text" pInputText class="w-full" formControlName="nomProduit" placeholder="Ex: Pack Famille">
-          </div>
-          <div class="col-md-4 mb-3 flex flex-column gap-2">
-            <label for="prixBase" class="form-label small fw-bold text-uppercase">Prix de Base (DT)</label>
-            <input id="prixBase" type="number" pInputText class="w-full" formControlName="prixBase" placeholder="0">
-          </div>
-        </div>  
-        <div class="mb-3 flex flex-column gap-2">
-          <label for="description" class="form-label small fw-bold text-uppercase">Description</label>
-          <textarea id="description" pInputTextarea [rows]="3" class="w-full" formControlName="description" placeholder="Détails de l'offre..."></textarea>
-        </div>
-        <div class="row">
-          <div class="col-md-6 mb-3 flex flex-column gap-2">
-            <label for="ageMin" class="form-label small fw-bold text-uppercase">Âge Minimum</label>
-            <input id="ageMin" type="number" pInputText class="w-full" formControlName="ageMin" placeholder="0">
-          </div>
-          <div class="col-md-6 mb-3 flex flex-column gap-2">
-            <label for="ageMax" class="form-label small fw-bold text-uppercase">Âge Maximum</label>
-            <input id="ageMax" type="number" pInputText class="w-full" formControlName="ageMax" placeholder="100">
-          </div>
-        </div>
-        <div class="mb-3 flex flex-column gap-2">
-          <label for="garantiesIds" class="form-label small fw-bold text-uppercase">Garanties Associées</label>
-          <p-multiSelect [options]="garanties" formControlName="garantiesIds" optionLabel="nomGarantie" optionValue="idGarantie" 
-                         placeholder="Sélectionner des garanties" styleClass="w-full" display="chip"></p-multiSelect>
-        </div>
-        <div class="grid mt-4">
-          <div class="col-12 md:col-6 mb-3">
-            <div class="flex align-items-center justify-content-between bg-light p-3 border-round shadow-1">
-              <label class="small fw-bold" for="chronicSwitch">Maladie chronique autorisée</label>
-              <p-inputSwitch id="chronicSwitch" formControlName="maladieChroniqueAutorisee"></p-inputSwitch>
-            </div>
-          </div>
-          <div class="col-12 md:col-6 mb-3">
-            <div class="flex align-items-center justify-content-between bg-light p-3 border-round shadow-1">
-              <label class="small fw-bold" for="diabetiqueSwitch">Diabétique autorisée</label>
-              <p-inputSwitch id="diabetiqueSwitch" formControlName="diabetiqueAutorise"></p-inputSwitch>
-            </div>
-          </div>
-          <div class="col-12 flex align-items-center gap-2 mt-2">
-            <p-inputSwitch id="activeSwitch" formControlName="actif"></p-inputSwitch>
-            <label class="small fw-bold" for="activeSwitch">Produit Actif</label>
-          </div>
-        </div>
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <p-toolbar styleClass="mb-4 gap-2 bg-white border-0 py-3 px-4">
+    <ng-template pTemplate="left">
+      <div>
+        <h2 class="h4 mb-0 fw-bold">Gestion des Produits</h2>
+        <p class="text-muted small mb-0">Administrez les produits d'assurance et leurs garanties.</p>
       </div>
-      <div class="card-footer bg-white border-0 p-4 pt-0 text-end">
-        <button pButton type="button" class="p-button-text p-button-secondary me-2" (click)="showForm = false" aria-label="Annuler">Annuler</button>
-        <button pButton type="submit" [disabled]="produitForm.invalid" [attr.aria-label]="isEditing ? 'Mettre à jour' : 'Enregistrer'"><i class="pi" [ngClass]="isEditing ? 'pi-save' : 'pi-check'"></i><span class="ms-2">{{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}</span></button>
+    </ng-template>
+
+    <ng-template pTemplate="right">
+      <button pButton pRipple label="Nouveau Produit" icon="pi pi-plus" class="p-button-primary" (click)="resetForm(); showForm = true"></button>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table #dt [value]="produits" [rows]="10" [paginator]="true" [globalFilterFields]="['nomProduit', 'description', 'type']"
+    [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="currentId" [rowHover]="true" dataKey="idProduit"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits" [showCurrentPageReport]="true"
+    [loading]="loading" styleClass="p-datatable-striped">
+    
+    <ng-template pTemplate="caption">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="m-0">Liste des Produits</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Rechercher..." />
+        </span>
       </div>
-    </form>
-  </div>
-  <!-- Search & List Card -->
-  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-    <div class="card-header bg-white border-0 py-3 px-4 d-flex align-items-center justify-content-between">
-      <h5 class="mb-0 fw-bold">Liste des Produits</h5>
-      <div class="search-input-wrapper search-input-300">
-        <div class="input-group input-group-sm rounded-pill border overflow-hidden bg-light">
-          <span class="input-group-text bg-transparent border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
-          <input pInputText
-            type="text"
-            class="form-control border-0 bg-transparent shadow-none"
-            placeholder="Rechercher..."
-            [(ngModel)]="searchText"
-            (ngModelChange)="filterProduits()"
-          />
-        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nomProduit">Nom <p-sortIcon field="nomProduit"></p-sortIcon></th>
+        <th pSortableColumn="type">Type <p-sortIcon field="type"></p-sortIcon></th>
+        <th pSortableColumn="prixBase">Prix de Base <p-sortIcon field="prixBase"></p-sortIcon></th>
+        <th>Garanties</th>
+        <th pSortableColumn="actif">Statut <p-sortIcon field="actif"></p-sortIcon></th>
+        <th class="text-end">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-p>
+      <tr>
+        <td class="fw-bold">
+          <a [routerLink]="['/admin', 'produits', p.idProduit]" class="text-decoration-none">{{ p.nomProduit }}</a>
+        </td>
+        <td>
+          <p-badge [value]="getTypeLabel(p.type)" [severity]="p.type === 'SANTE' ? 'success' : (p.type === 'AUTO' ? 'info' : 'warning')"></p-badge>
+        </td>
+        <td class="fw-bold text-primary">{{ p.prixBase | number:'1.2-2' }} DT</td>
+        <td>
+          <small class="text-muted d-block text-truncate" style="max-width: 200px;">{{ getGarantieNames(p.garantiesIds) }}</small>
+        </td>
+        <td>
+          <span class="badge rounded-pill" [ngClass]="p.actif ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger'">
+            {{ p.actif ? 'Active' : 'Inactive' }}
+          </span>
+        </td>
+        <td class="text-end">
+          <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-primary me-2" (click)="modifier(p)"></button>
+          <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="supprimer(p.idProduit)"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="summary">
+      <div class="flex align-items-center justify-content-between">
+        Total de {{ produits ? produits.length : 0 }} produits.
       </div>
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="bg-light text-uppercase small fw-bold">
-            <tr>
-              <th class="px-4 py-3 sortable-col" (click)="sortProduits('nomProduit')">
-                Produit <i *ngIf="sortField === 'nomProduit'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
-              </th>
-              <th class="py-3 sortable-col" (click)="sortProduits('prixBase')">
-                Prix de Base <i *ngIf="sortField === 'prixBase'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
-              </th>
-              <th class="py-3 sortable-col" (click)="sortProduits('ageMin')">
-                Ã‚ge <i *ngIf="sortField === 'ageMin'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
-              </th>
-              <th class="py-3">Garanties</th>
-              <th class="py-3 text-center sortable-col" (click)="sortProduits('actif')">
-                Statut <i *ngIf="sortField === 'actif'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
-              </th>
-              <th class="px-4 py-3 text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let p of filteredProduits">
-              <td class="px-4 fw-semibold text-dark">
-                <a [routerLink]="['/admin','produits', p.idProduit]" class="text-decoration-none hover-primary">{{ p.nomProduit }}</a>
-              </td>
-              <td class="fw-bold text-primary">{{ p.prixBase | number:'1.2-2' }} DT</td>
-              <td><span class="badge bg-light text-dark border">{{ p.ageMin }} - {{ p.ageMax }} ans</span></td>
-              <td>
-                <div class="d-flex flex-wrap gap-1">
-                  <span *ngFor="let name of getGarantieNames(p.garantiesIds).split(',')" class="badge bg-info-subtle text-info border border-info-subtle extra-small">
-                    {{ name.trim() }}
-                  </span>
-                </div>
-              </td>
-              <td class="text-center">
-                <span class="badge rounded-pill" [ngClass]="p.actif ?'bg-success-subtle text-success border border-success':'bg-danger-subtle text-danger border border-danger'">
-                  {{ p.actif ? 'Actif' : 'Inactif' }}
-                  {{ p.dateCreation | date:'dd/MM/yyyy HH:mm' }}
-                </span>
-              </td>
-              <td class="px-4 text-end">
-                <div class="action-buttons d-flex justify-content-end gap-2">
-                  <button pButton class="p-button-sm p-button-text p-button-secondary rounded-pill px-3 shadow-none border" (click)="modifier(p)" title="Modifier" aria-label="Modifier">
-                    <i class="bi bi-pencil-square text-primary"></i>
-                  </button>
-                  <button pButton class="p-button-sm p-button-text p-button-secondary rounded-pill px-3 shadow-none border" (click)="supprimer(p.idProduit)" title="Supprimer" aria-label="Supprimer">
-                    <i class="bi bi-trash text-danger"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="filteredProduits.length === 0">
-              <td colspan="7" class="text-center py-5 text-muted">
-                <i class="bi bi-box-seam fs-1 d-block mb-3 opacity-25"></i>
-                Aucun produit trouvÃ©.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+    </ng-template>
+  </p-table>
 </div>
 
+<p-dialog [(visible)]="showForm" [style]="{ width: '650px' }" header="{{ isEditing ? 'Détails du Produit' : 'Nouveau Produit' }}" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <form [formGroup]="produitForm">
+      <div class="formgrid grid">
+        <div class="field col-8 mb-4">
+          <label for="nomProduit" class="fw-bold mb-2">Nom du Produit</label>
+          <input type="text" pInputText id="nomProduit" formControlName="nomProduit" required autofocus />
+        </div>
+        <div class="field col-4 mb-4">
+          <label for="type" class="fw-bold mb-2">Type</label>
+          <p-dropdown id="type" [options]="produitTypes" formControlName="type" optionLabel="label" optionValue="value" placeholder="Choisir un type"></p-dropdown>
+        </div>
+      </div>
+      
+      <div class="field mb-4">
+        <label for="description" class="fw-bold mb-2">Description</label>
+        <textarea id="description" pInputTextarea formControlName="description" required rows="3"></textarea>
+      </div>
 
+      <div class="formgrid grid">
+        <div class="field col-4">
+          <label for="prixBase" class="fw-bold mb-2">Prix de Base (DT)</label>
+          <p-inputNumber id="prixBase" formControlName="prixBase" mode="currency" currency="TND" locale="fr-TN"></p-inputNumber>
+        </div>
+        <div class="field col-4">
+          <label for="ageMin" class="fw-bold mb-2">Age Min</label>
+          <p-inputNumber id="ageMin" formControlName="ageMin" [showButtons]="true" [min]="0" suffix=" ans"></p-inputNumber>
+        </div>
+        <div class="field col-4">
+          <label for="ageMax" class="fw-bold mb-2">Age Max</label>
+          <p-inputNumber id="ageMax" formControlName="ageMax" [showButtons]="true" [min]="0" suffix=" ans"></p-inputNumber>
+        </div>
+      </div>
 
+      <div class="field mb-4">
+        <label for="garantiesIds" class="fw-bold mb-2">Garanties Incluses</label>
+        <p-multiSelect id="garantiesIds" [options]="garanties" formControlName="garantiesIds" 
+          optionLabel="nomGarantie" optionValue="idGarantie" placeholder="Sélectionner des garanties" display="chip"></p-multiSelect>
+      </div>
 
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="field d-flex align-items-center gap-2">
+            <p-inputSwitch id="maladie" formControlName="maladieChroniqueAutorisee"></p-inputSwitch>
+            <label for="maladie" class="small fw-bold mb-0">Maladie Chronique Autorisée</label>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="field d-flex align-items-center gap-2">
+            <p-inputSwitch id="diabete" formControlName="diabetiqueAutorise"></p-inputSwitch>
+            <label for="diabete" class="small fw-bold mb-0">Diabétique Autorisé</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field d-flex align-items-center gap-2 mt-2">
+        <p-inputSwitch id="actif" formControlName="actif"></p-inputSwitch>
+        <label for="actif" class="fw-bold mb-0">Produit Actif</label>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text" (click)="showForm = false"></button>
+    <button pButton pRipple label="{{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}" icon="pi pi-check" class="p-button-primary" [disabled]="produitForm.invalid" (click)="onSubmit()"></button>
+  </ng-template>
+</p-dialog>

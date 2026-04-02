@@ -21,7 +21,6 @@
       </div>
       <div class="summary-content" *ngIf="showSummary" [innerHTML]="getProfileSummary()"></div>
     </div>
-    
     <div class="messages-container" #scrollContainer>
       <div *ngFor="let msg of messages" class="message-wrapper" [ngClass]="msg.sender">
         <div class="message">

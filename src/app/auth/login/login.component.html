@@ -1,41 +1,45 @@
 <div class="login-container flex align-items-center justify-content-center min-vh-100">
-    <div class="login-card p-5 shadow-4 border-round-xl surface-card" style="width: 100%; max-width: 450px;">
-        <div class="login-header text-center mb-5">
-            <h2 class="text-900 font-bold mb-2"> Bienvenue </h2>
-            <p class="text-600"> Connectez-vous à votre espace AssurAI </p>
-        </div>
-        
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3">
-            <div class="field flex flex-column gap-2 mb-3">
-                <label for="userName" class="block text-900 font-medium">Nom d'utilisateur</label>
-                <div class="p-input-icon-left">
-                    <i class="pi pi-user"></i>
-                    <input pInputText id="userName" formControlName="userName" placeholder="Utilisateur" class="w-full" />
-                </div>
-                <small class="p-error" *ngIf="loginForm.get('userName')?.touched && loginForm.get('userName')?.invalid">
-                    Nom d'utilisateur requis ou format invalide.
-                </small>
-            </div>
-            <div class="field flex flex-column gap-2 mb-4">
-                <label for="password" class="block text-900 font-medium"> Mot de passe </label>
-                <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false" 
-                            styleClass="w-full" inputStyleClass="w-full" placeholder="••••••••"></p-password>
-                <small class="p-error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')">
-                    Le mot de passe doit contenir au moins 7 caractères.
-                </small>
-            </div>
-            <div class="error-msg mb-3" *ngIf="error">
-                <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
-            </div>
-            <button pButton type="submit" label="Se connecter" icon="pi pi-sign-in" [disabled]="loginForm.invalid" class="w-full p-3 font-bold"></button>
-        </form>
-
-        <p-divider align="center" styleClass="my-4">
-            <span class="text-600 font-medium">OU</span>
-        </p-divider>
-
-        <div class="login-footer text-center">
-            <p class="text-600"> Pas encore de compte ? <a routerLink="/auth/register" class="text-primary font-bold no-underline hover:underline"> S'inscrire </a></p>
-        </div>
+  <p-card
+    class="login-card p-5 shadow-4 border-round-xl surface-card"
+    [style]="{ width: '100%', 'max-width': '450px' }">
+    <div class="login-header text-center mb-5">
+      <h2 class="text-900 font-bold mb-2">Bienvenue</h2>
+      <p class="text-600">Connectez-vous à votre espace Assurance</p>
     </div>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3">
+      <div class="field flex flex-column gap-2">
+        <label for="userName" class="text-900 font-medium">Nom d'utilisateur</label>
+        <div class="p-input-icon-left">
+          <i class="pi pi-user"></i>
+          <input pInputText id="userName" formControlName="userName" placeholder="Utilisateur" class="w-full" />
+        </div>
+        <small class="p-error" *ngIf="loginForm.get('userName')?.touched && loginForm.get('userName')?.invalid">
+          Nom d'utilisateur requis ou format invalide.
+        </small>
+      </div>
+      <div class="field flex flex-column gap-2">
+        <label for="password" class="text-900 font-medium">Mot de passe</label>
+        <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false"
+                    styleClass="w-full" inputStyleClass="w-full" placeholder="••••••••">
+        </p-password>
+        <small class="p-error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')">
+          Le mot de passe doit contenir au moins 7 caractères.
+        </small>
+      </div>
+      <div *ngIf="error">
+        <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
+      </div>
+      <button pButton type="submit" label="Se connecter" icon="pi pi-sign-in" 
+              [disabled]="loginForm.invalid" class="w-full p-3 font-bold mt-3"></button>
+    </form>
+    <p-divider align="center" styleClass="my-4">
+      <span class="text-600 font-medium">OU</span>
+    </p-divider>
+    <div class="login-footer text-center">
+      <p class="text-600">
+        Pas encore de compte ?
+        <a routerLink="/auth/register" class="text-primary font-bold no-underline hover:underline">S'inscrire</a>
+      </p>
+    </div>
+  </p-card>
 </div>

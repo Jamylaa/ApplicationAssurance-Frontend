@@ -1,296 +1,155 @@
-<div class="container-fluid py-4">
-  <div class="row mb-4 align-items-center">
-    <div class="col">
-      <h2 class="h3 mb-0 fw-bold">Gestion des Clients</h2>
-      <p class="text-muted small mb-0">
-        Gérez les comptes clients et suivez leurs informations de santé.
-      </p>
-    </div>
-    <div class="col-auto">
-      <button
-        pButton
-        class="p-button-primary d-flex align-items-center shadow-sm"
-        *ngIf="!showForm"
-        (click)="resetForm(); showForm = true; errorMsg = ''"
-      >
-        <i class="bi bi-person-plus-fill me-2" aria-hidden="true"></i>
-        <span>Nouveau Client</span>
-      </button>
-      <button
-        pButton
-        class="p-button-outlined p-button-secondary d-flex align-items-center shadow-sm"
-        *ngIf="showForm"
-        (click)="showForm = false; resetForm(); errorMsg = ''"
-        aria-label="Annuler"
-      >
-        <i class="bi bi-x-lg me-2" aria-hidden="true"></i>
-        <span>Annuler</span>
-      </button>
-    </div>
-  </div>
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <p-toolbar styleClass="mb-4 gap-2 bg-white border-0 py-3 px-4">
+    <ng-template pTemplate="left">
+      <div>
+        <h2 class="h4 mb-0 fw-bold">Gestion des Clients</h2>
+        <p class="text-muted small mb-0">Consultez et gérez les comptes clients et leurs profils risque.</p>
+      </div>
+    </ng-template>
 
-  <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+    <ng-template pTemplate="right">
+      <button pButton pRipple label="Nouveau Client" icon="pi pi-user-plus" class="p-button-primary" (click)="resetForm(); showForm = true"></button>
+    </ng-template>
+  </p-toolbar>
 
-  <div *ngIf="errorMsg" class="alert alert-danger shadow-sm mt-3">
-    {{ errorMsg }}
-  </div>
+  <p-table #dt [value]="clients" [rows]="10" [paginator]="true" [globalFilterFields]="['userName', 'email', 'phone', 'profession']"
+    [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true" dataKey="idUser"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} clients" [showCurrentPageReport]="true"
+    [loading]="listLoading" styleClass="p-datatable-striped">
+    
+    <ng-template pTemplate="caption">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="m-0">Liste des Clients</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Rechercher..." />
+        </span>
+      </div>
+    </ng-template>
 
-  <div class="card shadow-sm rounded-4 mb-4" *ngIf="showForm">
-    <div class="card-header bg-light">
-      <h5 class="fw-bold mb-0">
-        {{ selectedClientId ? 'Modifier' : 'Ajouter' }} un Client
-      </h5>
-    </div>
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="userName">Utilisateur <p-sortIcon field="userName"></p-sortIcon></th>
+        <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+        <th>Téléphone</th>
+        <th pSortableColumn="age">Age <p-sortIcon field="age"></p-sortIcon></th>
+        <th>Profession</th>
+        <th class="text-end">Actions</th>
+      </tr>
+    </ng-template>
 
-    <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
-      <div class="card-body">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label for="userName" class="form-label fw-bold">Nom utilisateur</label>
-            <input
-              id="userName"
-              pInputText
-              class="w-100"
-              formControlName="userName"
-              [class.ng-invalid]="(clientForm.get('userName')?.touched && clientForm.get('userName')?.invalid) || (clientForm.get('userName')?.value && !usernameValidation.isValid)"
-            >
-            <small class="text-danger" *ngIf="clientForm.get('userName')?.touched && clientForm.get('userName')?.hasError('required')">
-              Le username est requis.
-            </small>
-            <small class="text-danger d-block" *ngIf="clientForm.get('userName')?.touched && clientForm.get('userName')?.hasError('usernameFormat')">
-              Utilisez uniquement des lettres, chiffres et tirets.
-            </small>
-            <small class="text-danger d-block" *ngIf="clientForm.get('userName')?.value && !usernameValidation.isValid">
-              {{ usernameValidation.message }}
-            </small>
-            <small class="text-success d-block" *ngIf="clientForm.get('userName')?.value && usernameValidation.isValid && usernameValidation.message">
-              {{ usernameValidation.message }}
-            </small>
+    <ng-template pTemplate="body" let-c>
+      <tr>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <p-avatar label="{{ c.userName?.charAt(0) | uppercase }}" shape="circle" styleClass="bg-primary text-white"></p-avatar>
+            <span class="fw-bold">{{ c.userName }}</span>
           </div>
+        </td>
+        <td>{{ c.email }}</td>
+        <td>{{ c.phone }}</td>
+        <td>{{ c.age }} ans</td>
+        <td>{{ c.profession }}</td>
+        <td class="text-end">
+          <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-primary me-2" (click)="updateClient(c)"></button>
+          <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="deleteClient(c.idUser)"></button>
+        </td>
+      </tr>
+    </ng-template>
 
-          <div class="col-md-6">
-            <label for="email" class="form-label fw-bold">Email</label>
-            <input
-              id="email"
-              type="email"
-              pInputText
-              class="w-100"
-              formControlName="email"
-              [class.ng-invalid]="(clientForm.get('email')?.touched && clientForm.get('email')?.invalid) || (clientForm.get('email')?.value && !emailValidation.isValid)"
-            >
-            <small class="text-danger" *ngIf="clientForm.get('email')?.touched && clientForm.get('email')?.hasError('required')">
-              L email est requis.
-            </small>
-            <small class="text-danger d-block" *ngIf="clientForm.get('email')?.touched && clientForm.get('email')?.hasError('email')">
-              Le format de l email est invalide.
-            </small>
-            <small class="text-danger d-block" *ngIf="clientForm.get('email')?.value && !emailValidation.isValid">
-              {{ emailValidation.message }}
-            </small>
-            <small class="text-success d-block" *ngIf="clientForm.get('email')?.value && emailValidation.isValid && emailValidation.message">
-              {{ emailValidation.message }}
-            </small>
-          </div>
+    <ng-template pTemplate="summary">
+      <div class="flex align-items-center justify-content-between">
+        Total de {{ clients ? clients.length : 0 }} clients.
+      </div>
+    </ng-template>
+  </p-table>
+</div>
 
-          <div class="col-md-6" *ngIf="!selectedClientId">
-            <label for="password" class="form-label fw-bold">Mot de passe</label>
-            <p-password
-              id="password"
-              formControlName="password"
-              [toggleMask]="true"
-              styleClass="w-100"
-            ></p-password>
-            <small class="text-danger d-block" *ngIf="clientForm.get('password')?.touched && clientForm.get('password')?.hasError('required')">
-              Le mot de passe est requis.
-            </small>
-            <small class="text-danger d-block" *ngIf="clientForm.get('password')?.value && !passwordValidation.isValid">
-              {{ passwordValidation.message }}
-            </small>
-            <small class="text-success d-block" *ngIf="clientForm.get('password')?.value && passwordValidation.isValid && passwordValidation.message">
-              {{ passwordValidation.message }}
-            </small>
-          </div>
-
-          <div class="col-md-6">
-            <label for="phone" class="form-label fw-bold">Telephone</label>
-            <input
-              id="phone"
-              type="number"
-              pInputText
-              class="w-100"
-              formControlName="phone"
-              [class.ng-invalid]="(clientForm.get('phone')?.touched && clientForm.get('phone')?.invalid) || (clientForm.get('phone')?.value && !phoneValidation.isValid)"
-            >
-            <small class="text-danger d-block" *ngIf="clientForm.get('phone')?.touched && clientForm.get('phone')?.hasError('required')">
-              Le telephone est requis.
-            </small>
-            <small class="text-danger d-block" *ngIf="clientForm.get('phone')?.value && !phoneValidation.isValid">
-              {{ phoneValidation.message }}
-            </small>
-            <small class="text-success d-block" *ngIf="clientForm.get('phone')?.value && phoneValidation.isValid && phoneValidation.message">
-              {{ phoneValidation.message }}
-            </small>
-          </div>
-
-          <div class="col-md-4">
-            <label for="age" class="form-label fw-bold">Age</label>
-            <input id="age" type="number" pInputText class="w-100" formControlName="age" min="0">
-          </div>
-
-          <div class="col-md-4">
-            <label for="sexe" class="form-label fw-bold">Sexe</label>
-            <select id="sexe" class="form-select" formControlName="sexe">
-              <option value="M">Masculin</option>
-              <option value="F">Feminin</option>
-            </select>
-          </div>
-
-          <div class="col-md-4">
-            <label for="nombreBeneficiaires" class="form-label fw-bold">Nombre de beneficiaires</label>
-            <input
-              id="nombreBeneficiaires"
-              type="number"
-              pInputText
-              class="w-100"
-              formControlName="nombreBeneficiaires"
-              min="1"
-            >
-          </div>
-
-          <div class="col-md-6">
-            <label for="profession" class="form-label fw-bold">Profession</label>
-            <input id="profession" pInputText class="w-100" formControlName="profession">
-          </div>
-
-          <div class="col-md-6">
-            <label for="situationFamiliale" class="form-label fw-bold">Situation familiale</label>
-            <select id="situationFamiliale" class="form-select" formControlName="situationFamiliale">
-              <option value="CELIBATAIRE">Celibataire</option>
-              <option value="MARIE">Marie</option>
-              <option value="DIVORCE">Divorce</option>
-              <option value="VEUF">Veuf</option>
-            </select>
-          </div>
-
-          <div class="col-12">
-            <label class="form-label fw-bold d-block">Informations de sante</label>
-            <div class="d-flex flex-wrap gap-4">
-              <div class="form-check">
-                <input id="maladieChronique" class="form-check-input" type="checkbox" formControlName="maladieChronique">
-                <label for="maladieChronique" class="form-check-label">Maladie chronique</label>
-              </div>
-              <div class="form-check">
-                <input id="diabetique" class="form-check-input" type="checkbox" formControlName="diabetique">
-                <label for="diabetique" class="form-check-label">Diabetique</label>
-              </div>
-              <div class="form-check">
-                <input id="tension" class="form-check-input" type="checkbox" formControlName="tension">
-                <label for="tension" class="form-check-label">Tension</label>
-              </div>
-            </div>
-          </div>
+<p-dialog [(visible)]="showForm" [style]="{ width: '850px' }" header="{{ selectedClientId ? 'Modifier Profil Client' : 'Nouveau Client' }}" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <form [formGroup]="clientForm">
+      <p-divider align="left" type="dashed">
+        <div class="inline-flex align-items-center">
+            <i class="pi pi-user mr-2"></i>
+            <b>Informations Personnelles</b>
+        </div>
+      </p-divider>
+      
+      <div class="formgrid grid">
+        <div class="field col-4">
+          <label for="userName" class="fw-bold mb-2">Nom d'utilisateur</label>
+          <input type="text" pInputText id="userName" formControlName="userName" />
+          <small class="p-error" *ngIf="!usernameValidation.isValid">{{ usernameValidation.message }}</small>
+        </div>
+        <div class="field col-4">
+          <label for="email" class="fw-bold mb-2">Email</label>
+          <input type="email" pInputText id="email" formControlName="email" />
+          <small class="p-error" *ngIf="!emailValidation.isValid">{{ emailValidation.message }}</small>
+        </div>
+        <div class="field col-4">
+          <label for="password" class="fw-bold mb-2">Mot de passe</label>
+          <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="true"></p-password>
+          <small class="p-error" *ngIf="!passwordValidation.isValid">{{ passwordValidation.message }}</small>
         </div>
       </div>
 
-      <div class="card-footer text-end">
-        <button
-          pButton
-          type="button"
-          class="p-button-text p-button-secondary me-2"
-          (click)="showForm = false; resetForm(); errorMsg = ''"
-        >
-          Annuler
-        </button>
-        <button
-          pButton
-          type="submit"
-          [label]="selectedClientId ? 'Mettre a jour' : 'Enregistrer'"
-          icon="pi pi-check"
-          [loading]="loading"
-          [disabled]="loading || clientForm.invalid || !usernameValidation.isValid || !emailValidation.isValid || !phoneValidation.isValid || (!selectedClientId && !passwordValidation.isValid)"
-          [attr.aria-label]="selectedClientId ? 'Mettre a jour le client' : 'Enregistrer le client'"
-        >
-        </button>
+      <div class="formgrid grid">
+        <div class="field col-3">
+          <label for="phone" class="fw-bold mb-2">Téléphone</label>
+          <p-inputMask id="phone" mask="99999999" formControlName="phone" placeholder="8 chiffres"></p-inputMask>
+          <small class="p-error" *ngIf="!phoneValidation.isValid">{{ phoneValidation.message }}</small>
+        </div>
+        <div class="field col-2">
+          <label for="age" class="fw-bold mb-2">Age</label>
+          <p-inputNumber id="age" formControlName="age" [showButtons]="true" [min]="0" [max]="120"></p-inputNumber>
+        </div>
+        <div class="field col-3">
+          <label for="sexe" class="fw-bold mb-2">Sexe</label>
+          <p-dropdown id="sexe" [options]="[{label: 'Homme', value: 'M'}, {label: 'Femme', value: 'F'}]" formControlName="sexe" optionLabel="label" optionValue="value"></p-dropdown>
+        </div>
+        <div class="field col-4">
+          <label for="situationFamiliale" class="fw-bold mb-2">Situation Familiale</label>
+          <p-dropdown id="situationFamiliale" [options]="['CELIBATAIRE', 'MARIE', 'DIVORCE', 'VEUF']" formControlName="situationFamiliale"></p-dropdown>
+        </div>
+      </div>
+
+      <div class="field mb-4">
+        <label for="profession" class="fw-bold mb-2">Profession</label>
+        <input type="text" pInputText id="profession" formControlName="profession" />
+      </div>
+
+      <p-divider align="left" type="dashed">
+        <div class="inline-flex align-items-center">
+            <i class="pi pi-heart-fill mr-2"></i>
+            <b>Profil Santé & Risque</b>
+        </div>
+      </p-divider>
+
+      <div class="formgrid grid">
+        <div class="field col-4">
+          <label for="nombreBeneficiaires" class="fw-bold mb-2">Nombre de Bénéficiaires</label>
+          <p-inputNumber id="nombreBeneficiaires" formControlName="nombreBeneficiaires" [showButtons]="true" [min]="1"></p-inputNumber>
+        </div>
+        <div class="col-8 flex align-items-center justify-content-around mt-4">
+          <div class="field-checkbox">
+            <p-checkbox formControlName="maladieChronique" [binary]="true" inputId="maladie"></p-checkbox>
+            <label for="maladie" class="ml-2 small fw-bold">Maladie Chronique</label>
+          </div>
+          <div class="field-checkbox">
+            <p-checkbox formControlName="diabetique" [binary]="true" inputId="diabete"></p-checkbox>
+            <label for="diabete" class="ml-2 small fw-bold">Diabétique</label>
+          </div>
+          <div class="field-checkbox">
+            <p-checkbox formControlName="tension" [binary]="true" inputId="tension"></p-checkbox>
+            <label for="tension" class="ml-2 small fw-bold">Tension</label>
+          </div>
+        </div>
       </div>
     </form>
-  </div>
+  </ng-template>
 
-  <div class="card shadow-sm rounded-4">
-    <div class="card-header d-flex justify-content-between align-items-center gap-3">
-      <h5 class="fw-bold mb-0">Liste des Clients</h5>
-      <input
-        pInputText
-        type="text"
-        placeholder="Rechercher..."
-        [value]="searchText"
-        (input)="onSearchInput($event)"
-      />
-    </div>
-    <div class="table-responsive">
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Email</th>
-            <th>Telephone</th>
-            <th>Profession</th>
-            <th class="text-end">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let client of filteredClients">
-            <td>{{ client.userName }}</td>
-            <td>{{ client.email }}</td>
-            <td>{{ client.phone }}</td>
-            <td>{{ client.profession || '-' }}</td>
-            <td class="text-end">
-              <button
-                pButton
-                class="p-button-text p-button-sm"
-                (click)="updateClient(client)"
-                aria-label="Modifier le client"
-              >
-                <i class="bi bi-pencil" aria-hidden="true"></i>
-                <span class="visually-hidden">Modifier</span>
-              </button>
-
-              <button
-                pButton
-                class="p-button-text p-button-sm text-danger"
-                (click)="deleteClient(client.idUser!)"
-                aria-label="Supprimer le client"
-              >
-                <i class="bi bi-trash" aria-hidden="true"></i>
-                <span class="visually-hidden">Supprimer</span>
-              </button>
-            </td>
-          </tr>
-          <tr *ngIf="!filteredClients.length">
-            <td colspan="5" class="text-center text-muted py-4">
-              Aucun client trouve.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="position-fixed bottom-0 end-0 p-3">
-    <div class="toast show bg-success text-white" *ngIf="successMsg">
-      <div class="d-flex align-items-center">
-        <div class="toast-body">
-          {{ successMsg }}
-        </div>
-        <button
-          pButton
-          class="p-button-text text-white"
-          (click)="successMsg = ''"
-          aria-label="Fermer"
-        >
-          <i class="pi pi-times" aria-hidden="true"></i>
-          <span class="visually-hidden">Fermer</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text" (click)="showForm = false"></button>
+    <button pButton pRipple label="{{ selectedClientId ? 'Mettre à jour' : 'Enregistrer' }}" icon="pi pi-check" class="p-button-primary" [loading]="loading" [disabled]="clientForm.invalid" (click)="onSubmit()"></button>
+  </ng-template>
+</p-dialog>

@@ -15,12 +15,8 @@ export class ChatbotComponent implements OnInit {
   collectedData: any = {};
   recommendations: any[] = [];
   showSummary: boolean = false;
-
   constructor(private recommendationService: RecommendationChatbotService) {}
-
-  ngOnInit() {
-    this.startConversation();
-  }
+  ngOnInit() { this.startConversation(); }
 
   startConversation() {
     this.loading = true;
@@ -66,9 +62,7 @@ export class ChatbotComponent implements OnInit {
           this.isComplete = res.is_complete || false;
           
           if (res.recommendations) {
-            this.recommendations = res.recommendations.scoredPacks || [];
-          }
-          
+            this.recommendations = res.recommendations.scoredPacks || [];  }  
           this.loading = false;
         },
         error: () => {
@@ -82,10 +76,8 @@ export class ChatbotComponent implements OnInit {
       });
     }
   }
-
   getProfileSummary() {
-    return this.recommendationService.generateProfileSummary(this.collectedData);
-  }
+    return this.recommendationService.generateProfileSummary(this.collectedData); }
 
   viewPackDetails(packId: string) {
     this.recommendationService.getPackDetails(packId).subscribe({
@@ -112,7 +104,6 @@ export class ChatbotComponent implements OnInit {
       }
     });
   }
-
   resetConversation() {
     this.messages = [];
     this.progress = 0;
@@ -121,29 +112,23 @@ export class ChatbotComponent implements OnInit {
     this.recommendations = [];
     this.startConversation();
   }
-
   onKeyPress(event: KeyboardEvent) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
     }
   }
-
   get hasCollectedData(): boolean {
     return !!this.collectedData && Object.keys(this.collectedData).length > 0;
   }
-
   formatMessage(text: string): string {
     // Convertir les retours à la ligne en <br>
-    let formatted = text.replace(/\n/g, '<br>');
-    
+    let formatted = text.replace(/\n/g, '<br>');  
     // Convertir le markdown **bold** en <strong>
     formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // Convertir les listes à puces
+      // Convertir les listes à puces
     formatted = formatted.replace(/^• (.*)$/gm, '<li>$1</li>');
     formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-    
-    return formatted;
+      return formatted;
   }
 }

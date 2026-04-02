@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Produit } from '../models/produit.model';
+import { Pack } from '../models/pack.model';
 import { API_CONFIG } from '../../core/api-config';
 
 @Injectable({
@@ -27,4 +28,10 @@ export class ProduitService {
   deleteProduit(idProduit: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${idProduit}`); }
 
+  // Packs
+  getAllPacks(): Observable<Pack[]> {
+    return this.http.get<Pack[]>('http://localhost:9093/api/packs'); }
+
+  getPackById(idPack: string): Observable<Pack> {
+    return this.http.get<Pack>(`http://localhost:9093/api/packs/${idPack}`); }
 }

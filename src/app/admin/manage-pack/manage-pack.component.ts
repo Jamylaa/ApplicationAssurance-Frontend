@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { PackService } from '../../shared/services/pack.service';
 import { ProduitService } from '../../shared/services/produit.service';
 import { Pack } from '../../shared/models/pack.model';
@@ -13,24 +14,22 @@ import { Produit } from '../../shared/models/produit.model';
 })
 export class ManagePackComponent implements OnInit {
   packs: Pack[] = [];
-  filteredPacks: Pack[] = [];
   produits: Produit[] = [];
-  searchText = '';
-  sortField = '';
-  sortDirection: 'asc' | 'desc' = 'asc';
+  loading = true;
   packForm: FormGroup;
   isEditing = false;
   currentId: any = null;
   showForm = false;
   breadcrumbItems = [{ label: 'Packs', link: '/admin/packs' }];
-  pendingEditId?: string;
 
   constructor(
     private packService: PackService,
     private produitService: ProduitService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {
     this.packForm = this.fb.group({
       nomPack: ['', Validators.required],
@@ -45,34 +44,22 @@ export class ManagePackComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.queryParamMap.subscribe((params) => {
-      const editId = params.get('editId');
-      if (editId) {
-        this.pendingEditId = editId;
-      }
-    });
-
     this.loadProduits();
     this.loadPacks();
   }
 
   loadPacks(): void {
+    this.loading = true;
     this.packService.getAllPacks().subscribe({
       next: (res) => {
         this.packs = res;
-        this.filteredPacks = res;
-
-        if (this.pendingEditId) {
-          const pack = this.packs.find((p) => p.idPack === this.pendingEditId);
-          if (pack) {
-            this.modifier(pack);
-            this.showForm = true;
-          }
-          this.pendingEditId = undefined;
-          this.router.navigate([], { queryParams: { editId: null }, queryParamsHandling: 'merge' });
-        }
+        this.loading = false;
       },
-      error: (err) => console.error('Error loading packs', err)
+      error: (err) => {
+        console.error('Error loading packs', err);
+        this.loading = false;
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de charger les packs' });
+      }
     });
   }
 
@@ -83,63 +70,28 @@ export class ManagePackComponent implements OnInit {
     });
   }
 
-  filterPacks(): void {
-    const search = this.searchText.toLowerCase().trim();
-
-    if (!search) {
-      this.filteredPacks = [...this.packs];
-      this.sortField = '';
-      this.sortDirection = 'asc';
-      return;
-    }
-
-    this.filteredPacks = this.packs.filter((p) =>
-      p.nomPack.toLowerCase().includes(search) ||
-      p.description.toLowerCase().includes(search)
-    );
-
-    if (this.sortField) {
-      this.sortPacks(this.sortField as keyof Pack);
-    }
-  }
-
-  sortPacks(field: keyof Pack): void {
-    if (this.sortField === field) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.sortField = field;
-      this.sortDirection = 'asc';
-    }
-
-    this.filteredPacks = [...this.filteredPacks].sort((a, b) => {
-      const aVal = a[field] as any;
-      const bVal = b[field] as any;
-
-      if (aVal == null) return 1;
-      if (bVal == null) return -1;
-      if (aVal === bVal) return 0;
-
-      const comparison = aVal > bVal ? 1 : -1;
-      return this.sortDirection === 'asc' ? comparison : -comparison;
-    });
-  }
-
   onSubmit(): void {
     if (this.packForm.valid) {
       const data = this.packForm.value;
       if (this.isEditing) {
-        this.packService.updatePack(this.currentId, data).subscribe(() => {
-          this.loadPacks();
-          this.resetForm();
-          this.showForm = false;
-          window.location.reload();
+        this.packService.updatePack(this.currentId, data).subscribe({
+          next: () => {
+            this.loadPacks();
+            this.resetForm();
+            this.showForm = false;
+            this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Pack mis à jour' });
+          },
+          error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Mise à jour échouée' })
         });
       } else {
-        this.packService.createPack(data).subscribe(() => {
-          this.loadPacks();
-          this.resetForm();
-          this.showForm = false;
-          window.location.reload();
+        this.packService.createPack(data).subscribe({
+          next: () => {
+            this.loadPacks();
+            this.resetForm();
+            this.showForm = false;
+            this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Pack créé' });
+          },
+          error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Création échouée' })
         });
       }
     }
@@ -149,16 +101,24 @@ export class ManagePackComponent implements OnInit {
     this.isEditing = true;
     this.currentId = p.idPack;
     this.packForm.patchValue(p);
-    this.showForm = true; }
+    this.showForm = true;
+  }
 
-  supprimer(idPack: any): void {
-    if (confirm('Supprimer ce pack ?')) {
-      this.packService.deletePack(idPack).subscribe(() => {
-        this.loadPacks();
-        this.packs = this.packs.filter(p => p.idPack !== idPack);
-        window.location.reload();
-      });
-    }
+  supprimer(idPack: string): void {
+    this.confirmationService.confirm({
+      message: 'Voulez-vous vraiment supprimer ce pack ?',
+      header: 'Confirmation de suppression',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.packService.deletePack(idPack).subscribe({
+          next: () => {
+            this.loadPacks();
+            this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Pack supprimé' });
+          },
+          error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Suppression échouée' })
+        });
+      }
+    });
   }
 
   resetForm(): void {
@@ -174,10 +134,11 @@ export class ManagePackComponent implements OnInit {
     });
   }
 
-  getProduitNames(ids: string[]): string {
+  getProduitNames(ids: string[] | undefined): string {
     if (!ids || ids.length === 0) return 'Aucun';
     return this.produits
       .filter(p => ids.includes(p.idProduit!))
       .map(p => p.nomProduit)
-      .join(', '); }
+      .join(', ');
+  }
 }

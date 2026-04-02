@@ -1,3 +1,8 @@
+@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import "primeng/resources/primeng.min.css";
+@import "primeicons/primeicons.css";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
 :root {
   --sidebar-width: 250px;
   --navbar-height: 64px;

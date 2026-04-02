@@ -1,13 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { Client, ClientDTO } from '../models/client.model';
 import { API_CONFIG } from '../../core/api-config';
 
 export interface ValidationResult {
   isValid: boolean;
   message: string;
+}
+
+interface ValidationApiResponse {
+  isValid?: boolean;
+  valid?: boolean;
+  message?: string;
 }
 
 @Injectable({
@@ -18,8 +24,10 @@ export class ClientService {
 
   constructor(private http: HttpClient) {}
 
+
   getAllClients(): Observable<Client[]> {
     return this.http.get<Client[]>(this.baseUrl).pipe(
+      map((clients) => this.normalizeClients(clients)),
       catchError((error) => {
         if (error?.status === 404) {
           return of([]);
@@ -31,6 +39,7 @@ export class ClientService {
 
   getClientById(id: string): Observable<Client> {
     return this.http.get<Client>(`${this.baseUrl}/${id}`).pipe(
+      map((client) => this.normalizeClient(client)),
       catchError(this.handleError)
     );
   }
@@ -41,12 +50,14 @@ export class ClientService {
 
   createClient(client: ClientDTO): Observable<Client> {
     return this.http.post<Client>(this.baseUrl, client).pipe(
+      map((createdClient) => this.normalizeClient(createdClient)),
       catchError(this.handleError)
     );
   }
 
   updateClient(id: string, client: ClientDTO): Observable<Client> {
     return this.http.put<Client>(`${this.baseUrl}/${id}`, client).pipe(
+      map((updatedClient) => this.normalizeClient(updatedClient)),
       catchError(this.handleError)
     );
   }
@@ -60,36 +71,44 @@ export class ClientService {
   searchClients(query: string): Observable<Client[]> {
     const params = new HttpParams().set('query', String(query ?? '').trim());
     return this.http.get<Client[]>(`${this.baseUrl}/search`, { params }).pipe(
+      map((clients) => this.normalizeClients(clients)),
       catchError(this.handleError)
     );
   }
 
   validateUsername(username: string): Observable<ValidationResult> {
-    const formData = new FormData();
-    formData.append('username', String(username ?? '').trim());
-
-    return this.http.post<ValidationResult>(`${this.baseUrl}/validate-username`, formData).pipe(
-      catchError((error) => this.handleValidationError(error))
-    );
+    const params = new HttpParams().set('username', username.trim());
+    return this.http
+      .post<ValidationApiResponse>(
+        `${this.baseUrl}/validate-username`,
+        params.toString(),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      )
+      .pipe(
+        map((response) => this.normalizeValidationResult(response)),
+        catchError((error) => this.handleValidationError(error))
+      );
   }
 
   validateEmail(email: string): Observable<ValidationResult> {
-    const formData = new FormData();
-    formData.append('email', String(email ?? '').trim().toLowerCase());
-
-    return this.http.post<ValidationResult>(`${this.baseUrl}/validate-email`, formData).pipe(
-      catchError((error) => this.handleValidationError(error))
-    );
+    const params = new HttpParams().set('email', email.trim().toLowerCase());
+    return this.http
+      .post<ValidationApiResponse>(
+        `${this.baseUrl}/validate-email`,
+        params.toString(),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      )
+      .pipe(
+        map((response) => this.normalizeValidationResult(response)),
+        catchError((error) => this.handleValidationError(error))
+      );
   }
 
   private handleValidationError(error: any): Observable<ValidationResult> {
     const details = error?.error;
 
-    if (details && typeof details === 'object' && 'isValid' in details) {
-      return of({
-        isValid: Boolean(details.isValid),
-        message: String(details.message ?? '')
-      });
+    if (details && typeof details === 'object') {
+      return of(this.normalizeValidationResult(details));
     }
 
     if (typeof details === 'string' && details.trim()) {
@@ -139,5 +158,36 @@ export class ClientService {
 
     console.error('ClientService error:', error);
     return throwError(() => apiError);
+  }
+
+  private normalizeClients(clients: Client[] | null | undefined): Client[] {
+    return Array.isArray(clients) ? clients.map((client) => this.normalizeClient(client)) : [];
+  }
+
+  private normalizeClient(client: Client | null | undefined): Client {
+    const normalized = client ?? ({} as Client);
+
+    return {
+      ...normalized,
+      userName: String(normalized.userName ?? '').trim(),
+      email: String(normalized.email ?? '').trim().toLowerCase(),
+      phone: Number(normalized.phone ?? 0),
+      age: Number(normalized.age ?? 0),
+      sexe: String(normalized.sexe ?? 'M'),
+      profession: String(normalized.profession ?? '').trim(),
+      situationFamiliale: String(normalized.situationFamiliale ?? 'CELIBATAIRE').trim(),
+      maladieChronique: Boolean(normalized.maladieChronique),
+      diabetique: Boolean(normalized.diabetique),
+      tension: Boolean(normalized.tension),
+      nombreBeneficiaires: Math.max(1, Number(normalized.nombreBeneficiaires ?? 1)),
+      actif: Boolean(normalized.actif)
+    };
+  }
+
+  private normalizeValidationResult(result: ValidationApiResponse | null | undefined): ValidationResult {
+    return {
+      isValid: Boolean(result?.isValid ?? result?.valid),
+      message: String(result?.message ?? '')
+    };
   }
 }

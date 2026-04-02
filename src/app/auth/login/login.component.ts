@@ -11,7 +11,6 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   loginForm: FormGroup;
   error: string = '';
-
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -22,7 +21,6 @@ export class LoginComponent {
       password: ['', [Validators.required, Validators.minLength(7)]]
     });
   }
-
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value).subscribe({

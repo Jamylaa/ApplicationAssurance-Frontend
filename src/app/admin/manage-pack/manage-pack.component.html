@@ -1,157 +1,125 @@
-﻿<div class="container-fluid py-4">
-  <!-- Header -->
-  <div class="row mb-4 align-items-center">
-    <div class="col">
-      <h2 class="h3 mb-0 fw-bold">Gestion des Packs</h2>
-      <p class="text-muted small mb-0">Créez et gérez les packs d'assurance proposés aux clients.</p>
-    </div>
-    <div class="col-auto">
-      <button pButton class="p-button-primary d-flex align-items-center shadow-sm" *ngIf="!showForm" (click)="resetForm(); showForm = true">
-        <i class="bi bi-plus-lg me-2"></i> Nouveau Pack
-      </button>
-      <button pButton class="p-button-outlined p-button-secondary d-flex align-items-center shadow-sm" *ngIf="showForm" (click)="showForm = false">
-        <i class="bi bi-x-lg me-2"></i> Annuler
-      </button>
-    </div>
-  </div>
-  <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
-  <!-- Inline Form -->
-  <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden animate__animated animate__fadeInDown" *ngIf="showForm">
-    <div class="card-header bg-light border-0 py-3 px-4">
-      <h5 class="card-title fw-bold mb-0">
-        {{ isEditing ? 'Modifier' : 'Ajouter' }} un Pack
-      </h5>
-    </div>
-    <form [formGroup]="packForm" (ngSubmit)="onSubmit()">
-      <div class="card-body p-4">
-        <div class="row">
-          <div class="col-md-8 mb-3 flex flex-column gap-2">
-            <label for="nomPack" class="form-label small fw-bold text-uppercase">Nom du Pack</label>
-            <input id="nomPack" type="text" pInputText class="w-full" formControlName="nomPack" placeholder="Ex: Pack Famille Premium">
-          </div>
-          <div class="col-md-4 mb-3 flex flex-column gap-2">
-            <label for="prixMensuel" class="form-label small fw-bold text-uppercase">Prix Mensuel (DT)</label>
-            <input id="prixMensuel" type="number" pInputText class="w-full" formControlName="prixMensuel" placeholder="50.00">
-          </div>
-        </div>
-        <div class="mb-3 flex flex-column gap-2">
-          <label for="description" class="form-label small fw-bold text-uppercase">Description</label>
-          <textarea id="description" pInputTextarea [rows]="3" class="w-full" formControlName="description" placeholder="DÃ©tails du pack..."></textarea>
-        </div>
-        <div class="row">
-          <div class="col-md-4 mb-3 flex flex-column gap-2">
-            <label for="niveauCouverture" class="form-label small fw-bold text-uppercase">Niveau de Couverture</label>
-            <p-dropdown id="niveauCouverture" [options]="[{label: 'Basic', value: 'basic'}, {label: 'Premium', value: 'premium'}, {label: 'Gold', value: 'gold'}]" 
-                        formControlName="niveauCouverture" optionLabel="label" optionValue="value" styleClass="w-full"></p-dropdown>
-          </div>
-          <div class="col-md-4 mb-3 flex flex-column gap-2">
-            <label for="dureeMinContrat" class="form-label small fw-bold text-uppercase">Durée Min (mois)</label>
-            <input id="dureeMinContrat" type="number" pInputText class="w-full" formControlName="dureeMinContrat" placeholder="12">
-          </div>
-          <div class="col-md-4 mb-3 flex flex-column gap-2">
-            <label for="dureeMaxContrat" class="form-label small fw-bold text-uppercase">Durée Max (mois)</label>
-            <input id="dureeMaxContrat" type="number" pInputText class="w-full" formControlName="dureeMaxContrat" placeholder="24">
-          </div>
-        </div>
-        <div class="mb-3 flex flex-column gap-2">
-          <label for="produitsIds" class="form-label small fw-bold text-uppercase">Produits Associés</label>
-          <p-multiSelect [options]="produits" formControlName="produitsIds" optionLabel="nomProduit" optionValue="idProduit" 
-                         placeholder="Sélectionner des produits" styleClass="w-full" display="chip"></p-multiSelect>
-        </div>
-        <div class="flex align-items-center gap-2 mt-4">
-          <p-inputSwitch id="packActif" formControlName="actif"></p-inputSwitch>
-          <label class="small fw-bold" for="packActif">Pack Actif</label>
-        </div>
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <p-toolbar styleClass="mb-4 gap-2 bg-white border-0 py-3 px-4">
+    <ng-template pTemplate="left">
+      <div>
+        <h2 class="h4 mb-0 fw-bold">Gestion des Packs</h2>
+        <p class="text-muted small mb-0">Créez et gérez des combinaisons de produits (Packs).</p>
       </div>
-      <div class="card-footer bg-white border-0 p-4 pt-0 text-end">
-        <button pButton type="button" class="p-button-text p-button-secondary me-2" (click)="showForm = false" aria-label="Annuler">Annuler</button>
-        <button pButton type="submit" [disabled]="packForm.invalid" [attr.aria-label]="isEditing ? 'Mettre à jour' : 'Enregistrer'"><i class="pi" [ngClass]="isEditing ? 'pi-save' : 'pi-check'"></i><span class="ms-2">{{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}</span></button>
+    </ng-template>
+
+    <ng-template pTemplate="right">
+      <button pButton pRipple label="Nouveau Pack" icon="pi pi-plus" class="p-button-primary" (click)="resetForm(); showForm = true"></button>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table #dt [value]="packs" [rows]="10" [paginator]="true" [globalFilterFields]="['nomPack', 'description']"
+    [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="currentId" [rowHover]="true" dataKey="idPack"
+    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} packs" [showCurrentPageReport]="true"
+    [loading]="loading" styleClass="p-datatable-striped">
+    
+    <ng-template pTemplate="caption">
+      <div class="d-flex align-items-center justify-content-between">
+        <h5 class="m-0">Liste des Packs</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Rechercher..." />
+        </span>
       </div>
-    </form>
-  </div>
-  <!-- Search & List Card -->
-  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-    <div class="card-header bg-white border-0 py-3 px-4 d-flex align-items-center justify-content-between">
-      <h5 class="mb-0 fw-bold">Liste des Packs</h5>
-      <div class="search-input-wrapper search-input-300">
-        <div class="input-group input-group-sm rounded-pill border overflow-hidden bg-light">
-          <span class="input-group-text bg-transparent border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
-          <input pInputText
-            type="text"
-            class="form-control border-0 bg-transparent shadow-none"
-            placeholder="Rechercher..."
-            [(ngModel)]="searchText"
-            (ngModelChange)="filterPacks()"
-          />
-        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nomPack">Nom <p-sortIcon field="nomPack"></p-sortIcon></th>
+        <th>Produits inclus</th>
+        <th pSortableColumn="prixMensuel">Prix Mensuel <p-sortIcon field="prixMensuel"></p-sortIcon></th>
+        <th pSortableColumn="niveauCouverture">Niveau <p-sortIcon field="niveauCouverture"></p-sortIcon></th>
+        <th pSortableColumn="actif">Statut <p-sortIcon field="actif"></p-sortIcon></th>
+        <th class="text-end">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-p>
+      <tr>
+        <td class="fw-bold">
+          <a [routerLink]="['/admin', 'packs', p.idPack]" class="text-decoration-none">{{ p.nomPack }}</a>
+        </td>
+        <td>
+          <span class="small text-muted">{{ getProduitNames(p.produitsIds) }}</span>
+        </td>
+        <td class="fw-bold text-primary">{{ p.prixMensuel | number:'1.2-2' }} DT</td>
+        <td>
+          <p-badge [value]="p.niveauCouverture" [severity]="p.niveauCouverture === 'premium' ? 'warning' : 'info'"></p-badge>
+        </td>
+        <td>
+          <span class="badge rounded-pill" [ngClass]="p.actif ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger'">
+            {{ p.actif ? 'Active' : 'Inactive' }}
+          </span>
+        </td>
+        <td class="text-end">
+          <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-primary me-2" (click)="modifier(p)"></button>
+          <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="supprimer(p.idPack)"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="summary">
+      <div class="flex align-items-center justify-content-between">
+        Total de {{ packs ? packs.length : 0 }} packs.
       </div>
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="bg-light text-uppercase small fw-bold">
-            <tr>
-              <th class="px-4 py-3 sortable-col" (click)="sortPacks('nomPack')">
-                Nom <i *ngIf="sortField === 'nomPack'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
-              </th>
-              <th class="py-3 sortable-col" (click)="sortPacks('prixMensuel')">
-                Prix <i *ngIf="sortField === 'prixMensuel'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
-              </th>
-              <th class="py-3">Couverture</th>
-              <th class="py-3">Produits</th>
-              <th class="py-3 text-center sortable-col" (click)="sortPacks('actif')">
-                Statut <i *ngIf="sortField === 'actif'" class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
-              </th>
-              <th class="px-4 py-3 text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let p of filteredPacks">
-              <td class="px-4 fw-semibold text-dark">
-                <a [routerLink]="['/admin','packs', p.idPack]" class="text-decoration-none hover-primary">{{ p.nomPack }}</a>
-              </td>
-              <td class="fw-bold text-primary">{{ p.prixMensuel | number:'1.2-2' }} DT</td>
-              <td>
-                <span class="badge rounded-pill"
-                  [ngClass]="{
-                    'bg-success-subtle text-success border border-success': p.niveauCouverture === 'gold',
-                    'bg-primary-subtle text-primary border border-primary': p.niveauCouverture === 'premium',
-                    'bg-secondary-subtle text-secondary border border-secondary': p.niveauCouverture === 'basic'
-                  }">
-                  {{ (p.niveauCouverture | uppercase) || 'BASIC' }}
-                </span>
-              </td>
-              <td><small class="text-muted d-block text-truncate produit-max-150">{{ getProduitNames(p.produitsIds) }}</small></td>
-              <td class="text-center">
-                <span class="badge rounded-pill" [ngClass]="p.actif ? 'bg-success-subtle text-success border border-success' : 'bg-danger-subtle text-danger border border-danger'">
-                  {{ p.actif ? 'Actif' : 'Inactif' }}
-                  {{ p.dateCreation | date:'dd/MM/yyyy HH:mm' }}
-                </span>
-              </td>
-              <td class="px-4 text-end">
-                <div class="action-buttons d-flex justify-content-end gap-2">
-                  <button pButton class="p-button-sm p-button-text p-button-secondary rounded-pill px-3 shadow-none border" (click)="modifier(p)" title="Modifier" aria-label="Modifier">
-                    <i class="bi bi-pencil-square text-primary"></i>
-                  </button>
-                  <button pButton class="p-button-sm p-button-text p-button-secondary rounded-pill px-3 shadow-none border" (click)="supprimer(p.idPack)" title="Supprimer" aria-label="Supprimer">
-                    <i class="bi bi-trash text-danger"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="filteredPacks.length === 0">
-              <td colspan="6" class="text-center py-5 text-muted">
-                <i class="bi bi-collection fs-1 d-block mb-3 opacity-25"></i>
-                Aucun pack trouvé.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+    </ng-template>
+  </p-table>
 </div>
 
+<p-dialog [(visible)]="showForm" [style]="{ width: '600px' }" header="{{ isEditing ? 'Détails du Pack' : 'Nouveau Pack' }}" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <form [formGroup]="packForm">
+      <div class="field mb-4">
+        <label for="nomPack" class="fw-bold mb-2">Nom du Pack</label>
+        <input type="text" pInputText id="nomPack" formControlName="nomPack" required autofocus />
+      </div>
+      
+      <div class="field mb-4">
+        <label for="description" class="fw-bold mb-2">Description</label>
+        <textarea id="description" pInputTextarea formControlName="description" required rows="3"></textarea>
+      </div>
 
+      <div class="formgrid grid">
+        <div class="field col-6">
+          <label for="prixMensuel" class="fw-bold mb-2">Prix Mensuel (DT)</label>
+          <p-inputNumber id="prixMensuel" formControlName="prixMensuel" mode="currency" currency="TND" locale="fr-TN"></p-inputNumber>
+        </div>
+        <div class="field col-6">
+          <label for="niveauCouverture" class="fw-bold mb-2">Niveau de Couverture</label>
+          <p-dropdown id="niveauCouverture" [options]="['basic', 'medium', 'premium']" formControlName="niveauCouverture" placeholder="Sélectionner un niveau"></p-dropdown>
+        </div>
+      </div>
 
+      <div class="formgrid grid">
+        <div class="field col-6">
+          <label for="dureeMinContrat" class="fw-bold mb-2">Durée Min (Mois)</label>
+          <p-inputNumber id="dureeMinContrat" formControlName="dureeMinContrat" [showButtons]="true" [min]="1"></p-inputNumber>
+        </div>
+        <div class="field col-6">
+          <label for="dureeMaxContrat" class="fw-bold mb-2">Durée Max (Mois)</label>
+          <p-inputNumber id="dureeMaxContrat" formControlName="dureeMaxContrat" [showButtons]="true" [min]="1"></p-inputNumber>
+        </div>
+      </div>
 
+      <div class="field mb-4">
+        <label for="produitsIds" class="fw-bold mb-2">Produits Associés</label>
+        <p-multiSelect id="produitsIds" [options]="produits" formControlName="produitsIds" 
+          optionLabel="nomProduit" optionValue="idProduit" placeholder="Choisir des produits" display="chip"></p-multiSelect>
+      </div>
+
+      <div class="field d-flex align-items-center gap-2 mt-4">
+        <p-inputSwitch id="actif" formControlName="actif"></p-inputSwitch>
+        <label for="actif" class="fw-bold mb-0">Pack Actif</label>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text" (click)="showForm = false"></button>
+    <button pButton pRipple label="{{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}" icon="pi pi-check" class="p-button-primary" [disabled]="packForm.invalid" (click)="onSubmit()"></button>
+  </ng-template>
+</p-dialog>
